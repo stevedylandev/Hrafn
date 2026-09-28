@@ -136,6 +136,8 @@ public actor AccountSession {
         }
         self.media = media
         transfer = HTTPTransfer(pinnedFingerprint: account.trustedFingerprint, loopback: loopbackHTTP)
+        ownAvailability = (account.availability.flatMap(ContactAvailability.init(rawValue:)) ?? .online,
+                           account.statusMessage)
     }
 
     /// When others' files are downloaded without asking.

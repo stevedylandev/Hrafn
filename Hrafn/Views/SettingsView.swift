@@ -10,8 +10,6 @@ struct SettingsView: View {
     @Environment(\.palette) private var palette
     @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var showingAddAccount = false
-    @State private var availability: ContactAvailability = .online
-    @State private var statusText = ""
     /// The account shown beside the list in regular width.
     @State private var selectedAccount: String?
     #if DEBUG
@@ -76,21 +74,6 @@ struct SettingsView: View {
             }
             Button { showingAddAccount = true } label: { Label("Add Account", systemImage: "plus") }
         }
-
-        Section {
-            Picker("Availability", selection: $availability) {
-                ForEach([ContactAvailability.online, .chat, .away, .extendedAway, .doNotDisturb], id: \.self) {
-                    Text($0.label).tag($0)
-                }
-            }
-            TextField("Status message", text: $statusText)
-                .onSubmit { publishPresence() }
-        } header: {
-            Text("My Status")
-        } footer: {
-            Text("Shown to contacts who share status with you, on every account.")
-        }
-        .onChange(of: availability) { publishPresence() }
 
         Section {
             Picker("Download automatically", selection: $app.mediaPolicy.autoDownload) {
@@ -167,14 +150,6 @@ struct SettingsView: View {
             LabeledContent("Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "–")
         }
     }
-
-    private func publishPresence() {
-        let (availability, text) = (availability, statusText)
-        for account in app.manager.accounts {
-            let session = app.manager.session(for: account.id)
-            Task { try? await session?.setPresence(availability, status: text.isEmpty ? nil : text) }
-        }
-    }
 }
 
 private struct AccountRow: View {
@@ -202,6 +177,49 @@ private struct AccountRow: View {
         }
         .observing({ app.database.profileStream(accountID: account.id, jid: account.jid) }, id: account.id,
                    into: $profile)
+    }
+}
+
+/// What one account tells contacts about us: availability and a status
+/// message, kept for the account and sent whenever it connects.
+private struct StatusSection: View {
+    let account: Account
+
+    @Environment(AppModel.self) private var app
+    @State private var availability: ContactAvailability = .online
+    @State private var statusText = ""
+
+    var body: some View {
+        Section {
+            Picker("Availability", selection: $availability) {
+                ForEach([ContactAvailability.online, .chat, .away, .extendedAway, .doNotDisturb], id: \.self) {
+                    Text($0.label).tag($0)
+                }
+            }
+            .accessibilityIdentifier("account.availability")
+            TextField("Status message", text: $statusText)
+                .onSubmit { publish() }
+                .accessibilityIdentifier("account.statusMessage")
+        } header: {
+            Text("My Status")
+        } footer: {
+            Text("Shown to contacts who share status with you on this account.")
+        }
+        .onAppear {
+            availability = account.availability.flatMap(ContactAvailability.init(rawValue:)) ?? .online
+            statusText = account.statusMessage ?? ""
+        }
+        .onChange(of: availability) { publish() }
+        // A message typed but never submitted.
+        .onDisappear { publish() }
+    }
+
+    private func publish() {
+        let text = statusText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let current = (account.availability.flatMap(ContactAvailability.init(rawValue:)) ?? .online, account.statusMessage)
+        guard current != (availability, text.isEmpty ? nil : text) else { return }
+        let (manager, id, availability) = (app.manager, account.id, availability)
+        Task { await manager.setPresence(id, availability, status: text.isEmpty ? nil : text) }
     }
 }
 
@@ -320,6 +338,7 @@ struct AccountDetailView: View {
         return Form {
             Group {
                 ProfileSection(account: account)
+                StatusSection(account: account)
 
                 Section {
                     LabeledContent("Status") {

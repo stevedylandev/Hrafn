@@ -73,13 +73,17 @@ public struct InboundMessage: Sendable, Hashable {
             guard let counterpart = sent ? inner.to : inner.from else { return nil }
             let stamp = forwarded.firstChild(name: "delay", namespaceURI: Namespaces.delay)?["stamp"]
                 .flatMap(XMPPDateTime.parse) ?? inner.delayStamp
-            self.init(message: inner, source: .carbon, isOutgoing: sent, peer: counterpart.bare,
+            // A note to self is ours whichever way the copy says it went.
+            self.init(message: inner, source: .carbon, isOutgoing: sent || counterpart.bare == account,
+                      peer: counterpart.bare,
                       timestamp: stamp, archiveID: inner.stanzaID(by: account), counterpart: counterpart)
             return
         }
 
         guard let from = outer.from else { return nil }
-        self.init(message: outer, source: .live, isOutgoing: false, peer: from.bare,
+        // A note to self comes back from our own address: one we sent, here
+        // or on another device, not a reply.
+        self.init(message: outer, source: .live, isOutgoing: from.bare == account, peer: from.bare,
                   timestamp: outer.delayStamp, archiveID: outer.stanzaID(by: account), counterpart: from)
     }
 

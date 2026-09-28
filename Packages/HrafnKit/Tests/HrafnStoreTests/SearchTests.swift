@@ -83,7 +83,10 @@ private func t(_ seconds: TimeInterval) -> Date { Date(timeIntervalSince1970: 1_
         var migrator = HrafnDatabase.migrator
         try migrator.migrate(queue, upTo: "v5")
         try queue.write { db in
-            try account.insert(db)
+            // The record has columns this schema has not reached yet.
+            try db.execute(sql: """
+                INSERT INTO account (id, jid, directTLS, enabled, createdAt) VALUES (?, ?, 1, 1, ?)
+                """, arguments: [account.id, account.jid, t(0)])
             try db.execute(sql: """
                 INSERT INTO message (accountID, peer, isOutgoing, body, timestamp, state, isRetracted, isMarkable)
                 VALUES (?, ?, 0, 'written before search', ?, 'received', 0, 1)
@@ -95,5 +98,31 @@ private func t(_ seconds: TimeInterval) -> Date { Date(timeIntervalSince1970: 1_
             try Int.fetchOne(db, sql: "SELECT count(*) FROM messageSearch WHERE messageSearch MATCH 'before'")
         }
         #expect(count == 1)
+    }
+
+    /// Notes to self stored twice, once as an incoming echo, are stored once.
+    @Test func migrationDropsEchoedNotesToSelf() throws {
+        let queue = try DatabaseQueue()
+        var migrator = HrafnDatabase.migrator
+        try migrator.migrate(queue, upTo: "v8")
+        try queue.write { db in
+            try db.execute(sql: """
+                INSERT INTO account (id, jid, directTLS, enabled, createdAt) VALUES (?, 'Juliet@example.com', 1, 1, ?)
+                """, arguments: [account.id, t(0)])
+            for (outgoing, body, originID) in [(1, "milk", "n1"), (0, "milk", "n1"), (0, "from my tablet", "n2")] {
+                try db.execute(sql: """
+                    INSERT INTO message (accountID, peer, isOutgoing, body, timestamp, state, isRetracted, isMarkable, originID)
+                    VALUES (?, 'juliet@example.com', ?, ?, ?, 'received', 0, 1, ?)
+                    """, arguments: [account.id, outgoing, body, t(1), originID])
+            }
+        }
+        migrator = HrafnDatabase.migrator
+        try migrator.migrate(queue)
+        let rows = try queue.read { db in
+            try Row.fetchAll(db, sql: "SELECT body, isOutgoing FROM message ORDER BY body")
+                .map { ($0["body"] as String, $0["isOutgoing"] as Bool) }
+        }
+        #expect(rows.map(\.0) == ["from my tablet", "milk"])
+        #expect(rows.allSatisfy { $0.1 })
     }
 }

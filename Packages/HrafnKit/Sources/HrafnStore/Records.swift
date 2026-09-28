@@ -19,10 +19,15 @@ public struct Account: Codable, Sendable, Hashable, Identifiable, FetchableRecor
     /// system does not (a self-signed or private-CA server), hex-encoded.
     public var trustedFingerprint: String?
     public var createdAt: Date
+    /// What this account tells contacts about us: an RFC 6121 availability
+    /// (`ContactAvailability` raw value; `nil` is online) and status message.
+    public var availability: String?
+    public var statusMessage: String?
 
     public init(id: String = UUID().uuidString, jid: String, host: String? = nil, port: Int? = nil,
                 directTLS: Bool = true, enabled: Bool = true, rosterVersion: String? = nil,
-                trustedFingerprint: String? = nil, createdAt: Date = Date()) {
+                trustedFingerprint: String? = nil, createdAt: Date = Date(),
+                availability: String? = nil, statusMessage: String? = nil) {
         self.id = id
         self.jid = jid
         self.host = host
@@ -32,6 +37,8 @@ public struct Account: Codable, Sendable, Hashable, Identifiable, FetchableRecor
         self.rosterVersion = rosterVersion
         self.trustedFingerprint = trustedFingerprint
         self.createdAt = createdAt
+        self.availability = availability
+        self.statusMessage = statusMessage
     }
 }
 

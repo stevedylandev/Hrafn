@@ -43,6 +43,8 @@ struct ChatView: View {
     /// Group chat: the nick whose address is being shown.
     @State private var inspectingSender: String?
     @State private var viewingContact: String?
+    /// Avatars and nicknames by JID (occupants without one by `room/nick`).
+    @State private var profiles: [String: Profile] = [:]
     /// A public room: why it can't be encrypted.
     @State private var explainingEncryption = false
     /// The composer's round buttons follow Dynamic Type.
@@ -95,7 +97,7 @@ struct ChatView: View {
     private var conversation: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(spacing: 4) {
+                LazyVStack(spacing: 10) {
                     if !reachedStart {
                         Button {
                             Task { await loadOlder() }
@@ -176,6 +178,7 @@ struct ChatView: View {
         .observing({ app.database.room(accountID: route.accountID, jid: route.peer) }, id: route, into: $room)
         .observing({ app.database.room(accountID: route.accountID, jid: occupant?.room ?? "") }, id: route, into: $viaRoom)
         .observing({ app.database.reactions(accountID: route.accountID, peer: route.peer) }, id: route, into: $reactions)
+        .observing({ app.database.profiles(accountID: route.accountID) }, id: route.accountID, into: $profiles)
         .task(id: route) {
             if let focus = route.focus {
                 // Load far enough back to include it.
@@ -242,12 +245,13 @@ struct ChatView: View {
         }
     }
 
-    /// One message, under a day header when it starts a new day.
+    /// One message, under a date/time separator when it opens a new
+    /// cluster (a new day, or a long enough gap since the one before).
     @ViewBuilder
     private func row(_ index: Int, _ message: StoredMessage, original: StoredMessage?,
                      proxy: ScrollViewProxy) -> some View {
-        if index == 0 || !Calendar.current.isDate(messages[index - 1].timestamp, inSameDayAs: message.timestamp) {
-            Text(message.timestamp, format: .dateTime.weekday(.wide).day().month())
+        if showsSeparator(at: index) {
+            Text("\(message.timestamp.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day())) at \(message.timestamp.formatted(.dateTime.hour().minute()))")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .padding(.top, 8)
@@ -257,7 +261,10 @@ struct ChatView: View {
                       showsSender: room != nil && !message.isOutgoing
                         && (index == 0 || messages[index - 1].senderNick != message.senderNick
                             || messages[index - 1].isOutgoing),
-                      showsFooter: endsRun(at: index),
+                      sender: sender(of: message),
+                      showsAvatar: endsRun(at: index),
+                      showSender: room == nil ? { showingContact = true }
+                        : message.senderNick.map { nick in { inspectingSender = nick } },
                       inspectSender: room == nil ? nil : { inspectingSender = $0 },
                       quote: quote(for: message, original: original),
                       showOriginal: original.map { original in
@@ -291,8 +298,19 @@ struct ChatView: View {
         }
     }
 
+    /// Whether the message at `index` opens a new cluster: the first
+    /// message, a new day, or after a long enough gap that a date/time
+    /// separator is worth repeating.
+    private func showsSeparator(at index: Int) -> Bool {
+        guard index > 0 else { return true }
+        let prev = messages[index - 1]
+        let message = messages[index]
+        return !Calendar.current.isDate(prev.timestamp, inSameDayAs: message.timestamp)
+            || message.timestamp.timeIntervalSince(prev.timestamp) > 30 * 60
+    }
+
     /// Whether the message at `index` is the last of a run from one sender
-    /// close together in time; only those show the time underneath.
+    /// close together in time; only those show the avatar beside them.
     private func endsRun(at index: Int) -> Bool {
         let message = messages[index]
         guard index + 1 < messages.count else { return true }
@@ -300,6 +318,20 @@ struct ChatView: View {
         return next.isOutgoing != message.isOutgoing || next.senderNick != message.senderNick
             || next.timestamp.timeIntervalSince(message.timestamp) > 5 * 60
             || !Calendar.current.isDate(next.timestamp, inSameDayAs: message.timestamp)
+    }
+
+    /// Who wrote an incoming message, for the avatar beside it; `nil` for
+    /// ours, and in notes to self, where every message is ours.
+    private func sender(of message: StoredMessage) -> MessageBubble.Sender? {
+        guard !message.isOutgoing, !isSelf else { return nil }
+        guard isRoom else {
+            return .init(name: title, image: app.avatarURL(profiles[route.peer]), colorKey: route.peer)
+        }
+        let nick = message.senderNick ?? ""
+        let jid = message.senderJID ?? roomStatus.occupants.first { $0.nick == nick }?.jid
+        let bare = jid.map { $0.split(separator: "/").first.map(String.init) ?? $0 }
+        let profile = bare.flatMap { profiles[$0] } ?? profiles["\(route.peer)/\(nick)"]
+        return .init(name: nick, image: app.avatarURL(profile), colorKey: nick)
     }
 
     /// A room occupant's real address, when the room reveals it.
@@ -601,6 +633,7 @@ struct ChatView: View {
 
     @ViewBuilder
     private func menu(for message: StoredMessage) -> some View {
+        Text(message.timestamp.formatted(date: .abbreviated, time: .standard))
         if !message.isRetracted, message.referenceID(inRoom: isRoom) != nil {
             ControlGroup {
                 ForEach(ReactionBar.quick, id: \.self) { emoji in
@@ -778,9 +811,12 @@ private struct MessageBubble: View {
     let accountID: String
     /// Group chat: the sender's nick above the first of their messages in a run.
     var showsSender = false
-    /// The time and state underneath, shown at the end of a run from one
-    /// sender; anything that needs attention shows regardless.
-    var showsFooter = true
+    /// Who wrote an incoming message; their avatar sits beside it.
+    var sender: Sender?
+    /// The avatar shows at the end of a run; the rest keep its space.
+    var showsAvatar = true
+    /// Tapping the avatar: the contact, or in a room the sender's address.
+    var showSender: (() -> Void)?
     /// Group chat: shows who the sender is, from their nick.
     var inspectSender: ((String) -> Void)?
     /// XEP-0461: the message this one answers.
@@ -791,9 +827,29 @@ private struct MessageBubble: View {
     var reactions: [ReactionCount] = []
     var toggleReaction: (String) -> Void = { _ in }
 
+    struct Sender {
+        var name: String
+        var image: URL?
+        var colorKey: String
+    }
+
+    private static let avatarSize: CGFloat = 28
+
     var body: some View {
-        HStack {
+        HStack(alignment: .bubbleBottom, spacing: 6) {
             if message.isOutgoing { Spacer(minLength: 48) }
+            if let sender {
+                if showsAvatar {
+                    Button { showSender?() } label: {
+                        Avatar(name: sender.name, size: Self.avatarSize, image: sender.image, colorKey: sender.colorKey)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(showSender == nil)
+                    .accessibilityHidden(true)
+                } else {
+                    Color.clear.frame(width: Self.avatarSize, height: 1)
+                }
+            }
             VStack(alignment: message.isOutgoing ? .trailing : .leading, spacing: 2) {
                 if showsSender, let nick = message.senderNick {
                     Button { inspectSender?(nick) } label: {
@@ -803,7 +859,6 @@ private struct MessageBubble: View {
                     }
                     .buttonStyle(.plain)
                     .disabled(inspectSender == nil)
-                    .padding(.leading, 12)
                     .accessibilityHint("Shows their address")
                 }
                 if let attachment = message.attachment, !message.isRetracted,
@@ -813,13 +868,15 @@ private struct MessageBubble: View {
                         .overlay {
                             if message.mentionsMe { RoundedRectangle(cornerRadius: 16).stroke(.tint, lineWidth: 2) }
                         }
+                        .alignmentGuide(.bubbleBottom) { $0[.bottom] }
                 } else {
                     bubble
+                        .alignmentGuide(.bubbleBottom) { $0[.bottom] }
                 }
                 if !reactions.isEmpty, !message.isRetracted {
                     ReactionBar(reactions: reactions, isOutgoing: message.isOutgoing, toggle: toggleReaction)
                 }
-                if showsFooter || needsAttention { footer }
+                if needsAttention { footer }
             }
             if !message.isOutgoing { Spacer(minLength: 48) }
         }
@@ -838,24 +895,29 @@ private struct MessageBubble: View {
 
     private var footer: some View {
         HStack(spacing: 4) {
-            switch message.encryption {
-            case .omemo:
-                Image(systemName: "checkmark.shield.fill").foregroundStyle(.green)
-                    .accessibilityLabel("Encrypted")
-            case .untrustedSender:
-                Image(systemName: "exclamationmark.shield").foregroundStyle(.orange)
-                    .accessibilityLabel("From a device you haven’t trusted")
-            case .undecryptable:
-                Image(systemName: "shield.slash").accessibilityLabel("Can’t be decrypted")
-            case nil:
-                EmptyView()
-            }
+            encryptionIcon
             if message.editedAt != nil, !message.isRetracted { Text("edited") }
             Text(message.timestamp, format: .dateTime.hour().minute())
             if message.isOutgoing { stateIcon }
         }
         .font(.caption2)
         .foregroundStyle(.secondary)
+    }
+
+    @ViewBuilder
+    private var encryptionIcon: some View {
+        switch message.encryption {
+        case .omemo:
+            Image(systemName: "checkmark.shield.fill").foregroundStyle(.green)
+                .accessibilityLabel("Encrypted")
+        case .untrustedSender:
+            Image(systemName: "exclamationmark.shield").foregroundStyle(.orange)
+                .accessibilityLabel("From a device you haven’t trusted")
+        case .undecryptable:
+            Image(systemName: "shield.slash").accessibilityLabel("Can’t be decrypted")
+        case nil:
+            EmptyView()
+        }
     }
 
     /// One sentence for a plain text message: who, what, when, and how far
@@ -939,6 +1001,16 @@ private struct MessageBubble: View {
         case .received, .read: EmptyView()
         }
     }
+}
+
+private extension VerticalAlignment {
+    /// The bottom of a message's bubble, above its reactions and time, for
+    /// the avatar beside it.
+    enum BubbleBottom: AlignmentID {
+        static func defaultValue(in context: ViewDimensions) -> CGFloat { context[.bottom] }
+    }
+
+    static let bubbleBottom = VerticalAlignment(BubbleBottom.self)
 }
 
 /// A plain message reads as one element with a written-out label; anything

@@ -108,6 +108,28 @@ import XMPPTestSupport
         #expect(received.peer == (try JID("romeo@example.net")))
     }
 
+    /// A note to self comes back from our own address: outgoing, so it
+    /// shows once, on our side.
+    @Test func notesToSelfAreOutgoing() throws {
+        let echo = try message("""
+        <message from='juliet@example.com/phone' to='juliet@example.com' type='chat' id='n1'>\
+        <body>remember milk</body></message>
+        """)
+        let live = try #require(InboundMessage(live: echo, account: try JID("juliet@example.com/x")))
+        #expect(live.isOutgoing)
+        #expect(live.peer == juliet.bare)
+
+        let receivedCarbon = try message("""
+        <message from='juliet@example.com' to='juliet@example.com/x' type='chat'>\
+        <received xmlns='urn:xmpp:carbons:2'><forwarded xmlns='urn:xmpp:forward:0'>\
+        <message xmlns='jabber:client' from='juliet@example.com/phone' to='juliet@example.com/tablet' type='chat' id='n2'>\
+        <body>and eggs</body></message></forwarded></received></message>
+        """)
+        let received = try #require(InboundMessage(live: receivedCarbon, account: juliet))
+        #expect(received.isOutgoing)
+        #expect(received.peer == juliet.bare)
+    }
+
     /// XEP-0045 §7.5: a private message through a room, live and as a sent
     /// carbon; the marker, and invitations that use the same element.
     @Test func privateMessagesThroughARoom() throws {

@@ -260,6 +260,33 @@ public final class HrafnDatabase: Sendable {
                 t.add(column: "encryption", .text)
             }
         }
+        migrator.registerMigration("v9") { db in
+            // Notes to self came back from our own address and were stored
+            // a second time as incoming. Drop those echoes, and count what
+            // other devices of ours wrote there as ours.
+            let isSelf = """
+                message.peer = (SELECT lower(jid) FROM account WHERE account.id = message.accountID)
+                """
+            try db.execute(sql: """
+                DELETE FROM message WHERE NOT isOutgoing AND \(isSelf) AND originID IS NOT NULL
+                  AND EXISTS (SELECT 1 FROM message AS sent WHERE sent.accountID = message.accountID
+                              AND sent.peer = message.peer AND sent.isOutgoing AND sent.originID = message.originID)
+                """)
+            try db.execute(sql: """
+                UPDATE message SET isOutgoing = 1, state = 'sent', notified = 1 WHERE NOT isOutgoing AND \(isSelf)
+                """)
+            try db.execute(sql: """
+                UPDATE conversation SET unreadCount = 0
+                WHERE peer = (SELECT lower(jid) FROM account WHERE account.id = conversation.accountID)
+                """)
+        }
+        migrator.registerMigration("v10") { db in
+            // Each account's own presence, kept across sessions.
+            try db.alter(table: "account") { t in
+                t.add(column: "availability", .text)
+                t.add(column: "statusMessage", .text)
+            }
+        }
         return migrator
     }
 }

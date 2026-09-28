@@ -16,6 +16,16 @@
     "%@" : {
       "shouldTranslate" : false
     },
+    "%@ at %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ at %2$@"
+          }
+        }
+      }
+    },
     "%@ Copy" : {
 
     },
@@ -882,7 +892,7 @@
     "Show Verification Code" : {
 
     },
-    "Shown to contacts who share status with you, on every account." : {
+    "Shown to contacts who share status with you on this account." : {
 
     },
     "Shows their address" : {

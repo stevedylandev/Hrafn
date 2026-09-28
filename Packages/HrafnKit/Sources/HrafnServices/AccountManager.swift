@@ -143,6 +143,17 @@ public final class AccountManager {
         }
     }
 
+    /// What one account tells its contacts about us; kept, and sent now if
+    /// the account is connected.
+    public func setPresence(_ accountID: String, _ availability: ContactAvailability, status text: String?) async {
+        guard var account = accounts.first(where: { $0.id == accountID }) else { return }
+        account.availability = availability == .online ? nil : availability.rawValue
+        account.statusMessage = text
+        try? database.save(account)
+        replace(account)
+        try? await sessions[accountID]?.setPresence(availability, status: text)
+    }
+
     /// Trusts a certificate the system rejected and reconnects.
     public func trustCertificate(_ fingerprint: String, for accountID: String) async {
         guard var account = accounts.first(where: { $0.id == accountID }) else { return }
