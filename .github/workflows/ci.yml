@@ -106,6 +106,10 @@ jobs:
         # (SWIFT_DEFAULT_ACTOR_ISOLATION, and the SDK's Sendable annotations);
         # Xcode 16 ignores the setting and fails the Swift 6 concurrency checks.
         run: sudo xcode-select -s /Applications/Xcode_26.1.1.app
+      - name: Install iOS platform
+        # The runner image ships Xcode 26.1.1 without its iOS 26.1 platform, so
+        # the generic simulator destination does not exist until it is fetched.
+        run: xcodebuild -downloadPlatform iOS
       - name: Build for simulator
         run: |
           set -o pipefail
