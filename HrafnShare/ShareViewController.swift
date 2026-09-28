@@ -130,10 +130,10 @@ final class ShareModel {
             defer { try? FileManager.default.removeItem(at: url.deletingLastPathComponent()) }
             file = try MediaPreparation.file(url, media: media)
         } else if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier),
-                  let url = try await provider.loadItem(forTypeIdentifier: UTType.url.identifier) as? URL {
+                  let url: URL = try await Self.item(provider, type: .url) {
             return try insertText(url.absoluteString, to: target, database: database)
         } else if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier),
-                  let text = try await provider.loadItem(forTypeIdentifier: UTType.plainText.identifier) as? String {
+                  let text: String = try await Self.item(provider, type: .plainText) {
             return try insertText(text, to: target, database: database)
         } else {
             return nil
@@ -153,6 +153,17 @@ final class ShareModel {
         }
         return try database.insertOutgoing(accountID: target.accountID, peer: target.peer, body: text,
                                            id: StanzaID.make()).id
+    }
+
+    /// The provider's item as `T`, cast inside the callback so only a sendable value leaves it.
+    private static func item<T: Sendable>(_ provider: NSItemProvider, type: UTType) async throws -> T? {
+        try await withCheckedThrowingContinuation { continuation in
+            provider.loadItem(forTypeIdentifier: type.identifier) { item, error in
+                if let error { continuation.resume(throwing: error) } else {
+                    continuation.resume(returning: item as? T)
+                }
+            }
+        }
     }
 
     private static func data(_ provider: NSItemProvider, type: UTType) async throws -> Data {
