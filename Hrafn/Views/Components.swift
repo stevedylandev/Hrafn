@@ -181,7 +181,36 @@ extension Contact.Subscription {
     }
 }
 
-/// A banner for accounts that are not connected, shown above lists.
+extension ConnectionStatus {
+    /// On the way to online: worth a quiet indicator, not a banner.
+    var isConnecting: Bool {
+        switch self {
+        case .connecting, .reconnecting: true
+        default: false
+        }
+    }
+}
+
+/// An account's connection at a glance: orange and pulsing while it
+/// connects, green once online.
+struct ConnectionDot: View {
+    let status: ConnectionStatus
+
+    var body: some View {
+        let dot = Circle().fill(status.color).frame(width: 8, height: 8)
+        Group {
+            if status.isConnecting {
+                dot.phaseAnimator([1, 0.3]) { $0.opacity($1) } animation: { _ in .easeInOut(duration: 0.8) }
+            } else {
+                dot
+            }
+        }
+        .accessibilityLabel(status.label)
+    }
+}
+
+/// A banner for accounts that can't connect, shown above lists. Connecting
+/// and reconnecting are left to the quieter indicators.
 struct ConnectionBanner: View {
     @Environment(AppModel.self) private var app
 
@@ -189,7 +218,10 @@ struct ConnectionBanner: View {
         let problems = app.manager.accounts.compactMap { account -> (String, ConnectionStatus)? in
             guard account.enabled else { return nil }
             let status = app.manager.status(for: account.id).connection
-            return status == .online ? nil : (account.jid, status)
+            switch status {
+            case .failed, .waitingForNetwork: return (account.jid, status)
+            default: return nil
+            }
         }
         if !problems.isEmpty {
             VStack(alignment: .leading, spacing: 4) {

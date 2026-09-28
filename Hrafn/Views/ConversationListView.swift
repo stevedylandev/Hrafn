@@ -86,6 +86,14 @@ struct ConversationListView: View {
         .safeAreaInset(edge: .top) { ConnectionBanner() }
         .navigationTitle("Chats")
         .toolbar {
+            // One account has no section header to carry its dot.
+            if let only = app.manager.accounts.first, app.manager.accounts.count == 1, only.enabled,
+               app.manager.status(for: only.id).connection.isConnecting {
+                ToolbarItem(placement: .topBarLeading) {
+                    ProgressView()
+                        .accessibilityLabel(app.manager.status(for: only.id).connection.label)
+                }
+            }
             ToolbarItem(placement: .primaryAction) {
                 Button { showingNewChat = true } label: {
                     Label("New Chat", systemImage: "square.and.pencil")
@@ -114,7 +122,9 @@ struct ConversationListView: View {
                                 .themedRow()
                         }
                     } header: {
-                        AccountSectionHeader(jid: account.jid, isExpanded: expanded,
+                        AccountSectionHeader(jid: account.jid,
+                                             connection: account.enabled ? app.manager.status(for: account.id).connection : nil,
+                                             isExpanded: expanded,
                                              unread: chats.reduce(0) { $0 + $1.conversation.unreadCount }) {
                             toggle(account.id)
                         }
@@ -211,13 +221,16 @@ struct ConversationListView: View {
 private struct AccountSectionHeader: View {
     @Environment(\.onAccent) private var onAccent
     let jid: String
+    /// Nil when the account is disabled.
+    let connection: ConnectionStatus?
     let isExpanded: Bool
     let unread: Int
     let toggle: () -> Void
 
     var body: some View {
         Button(action: toggle) {
-            HStack {
+            HStack(spacing: 8) {
+                if let connection { ConnectionDot(status: connection) }
                 Text(jid).lineLimit(1)
                 Spacer()
                 if !isExpanded, unread > 0 {
@@ -236,7 +249,7 @@ private struct AccountSectionHeader: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(jid)
+        .accessibilityLabel(connection.map { "\(jid), \($0.label)" } ?? jid)
         .accessibilityValue(isExpanded ? String(localized: "Expanded") : String(localized: "Collapsed, \(unread) unread"))
         .accessibilityHint(isExpanded ? String(localized: "Hides this account's chats") : String(localized: "Shows this account's chats"))
     }

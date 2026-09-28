@@ -257,7 +257,7 @@ import XMPPTestSupport
 @Suite struct PresenceBookTests {
     func presence(_ xml: String) throws -> Presence { try #require(Presence(try parse(xml))) }
 
-    @Test func summarisesTheMostReachableResource() throws {
+    @Test func summarisesTheLatestResource() throws {
         var book = PresenceBook()
         let romeo = try JID("romeo@example.net")
         #expect(book.availability(of: romeo) == .offline)
@@ -272,6 +272,20 @@ import XMPPTestSupport
         #expect(!book.update(try presence("<presence from='romeo@example.net' type='subscribe'/>")))
         #expect(book.update(try presence("<presence from='romeo@example.net/a' type='unavailable'/>")))
         #expect(book.availability(of: romeo) == .offline)
+    }
+
+    /// A session kept for resumption still says "online"; the presence just
+    /// set elsewhere is the one to show, unless the old one outranks it.
+    @Test func prefersTheLatestChangeThenPriority() throws {
+        var book = PresenceBook()
+        let romeo = try JID("romeo@example.net")
+        book.update(try presence("<presence from='romeo@example.net/old'><status>before</status></presence>"))
+        book.update(try presence("<presence from='romeo@example.net/new'><show>away</show><status>after</status></presence>"))
+        #expect(book.availability(of: romeo) == .away)
+        #expect(book.summary(for: romeo)?.status == "after")
+        book.update(try presence("<presence from='romeo@example.net/old'><priority>5</priority></presence>"))
+        #expect(book.availability(of: romeo) == .online)
+        #expect(book.summary(for: romeo)?.status == nil)
     }
 
     @Test func buildsOwnPresenceWithCaps() throws {

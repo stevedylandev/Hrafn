@@ -72,9 +72,12 @@ public struct PresenceBook: Sendable, Equatable {
         public var availability: Availability
         public var status: String?
         public var priority: Int
+        /// When it last changed, relative to the others.
+        var sequence = 0
     }
 
     private var resources: [JID: [String: Resource]] = [:]
+    private var sequence = 0
 
     public init() {}
 
@@ -88,8 +91,10 @@ public struct PresenceBook: Sendable, Equatable {
         let resource = from.resourcepart ?? ""
         switch presence.type {
         case .available:
+            sequence += 1
             resources[bare, default: [:]][resource] = Resource(
-                availability: presence.availability, status: presence.status, priority: presence.priority)
+                availability: presence.availability, status: presence.status, priority: presence.priority,
+                sequence: sequence)
         case .unavailable:
             if from.isBare {
                 resources[bare] = nil
@@ -107,12 +112,17 @@ public struct PresenceBook: Sendable, Equatable {
     }
 
     /// Forgets everyone: on a fresh session, presence starts over.
-    public mutating func reset() { resources.removeAll() }
+    public mutating func reset() {
+        resources.removeAll()
+        sequence = 0
+    }
 
-    /// The most reachable resource, ties broken by priority.
+    /// The highest-priority resource, ties broken by the latest change. Not
+    /// the most reachable: a session the server keeps for resumption still
+    /// advertises the old presence, and would hide the one just set.
     public func summary(for jid: JID) -> Resource? {
-        resources[jid.bare]?.values.min { lhs, rhs in
-            lhs.availability != rhs.availability ? lhs.availability < rhs.availability : lhs.priority > rhs.priority
+        resources[jid.bare]?.values.max { lhs, rhs in
+            lhs.priority != rhs.priority ? lhs.priority < rhs.priority : lhs.sequence < rhs.sequence
         }
     }
 

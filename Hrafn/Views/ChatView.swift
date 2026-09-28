@@ -122,9 +122,19 @@ struct ChatView: View {
             .defaultScrollAnchor(.bottom)
             .themed()
             .scrollDismissesKeyboard(.interactively)
-            .onChange(of: messages.last?.id) { _, id in
+            .onChange(of: messages.last?.id) { old, id in
                 guard pendingFocus == nil else { return }
-                withAnimation { proxy.scrollTo(id, anchor: .bottom) }
+                if old == nil {
+                    // Opening the chat: jump to the latest, again once the
+                    // lazy rows have measured themselves.
+                    proxy.scrollTo(id, anchor: .bottom)
+                    Task {
+                        try? await Task.sleep(for: .milliseconds(100))
+                        proxy.scrollTo(id, anchor: .bottom)
+                    }
+                } else {
+                    withAnimation { proxy.scrollTo(id, anchor: .bottom) }
+                }
             }
             // Whichever comes second: the rows, or the request to show one.
             .onChange(of: messages) { bringFocusIntoView(proxy) }
