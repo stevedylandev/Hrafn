@@ -98,18 +98,21 @@ jobs:
 
   app:
     name: Hrafn app
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
+      - name: Select Xcode
+        # Pinned to the Xcode used locally. The project needs Xcode 26
+        # (SWIFT_DEFAULT_ACTOR_ISOLATION, and the SDK's Sendable annotations);
+        # Xcode 16 ignores the setting and fails the Swift 6 concurrency checks.
+        run: sudo xcode-select -s /Applications/Xcode_26.1.1.app
       - name: Build for simulator
-        # Uses the runner's default Xcode; the project needs Xcode 16 or newer
-        # (pbxproj objectVersion 77, Swift 6 language mode).
         run: |
           set -o pipefail
           xcodebuild build \
             -project Hrafn.xcodeproj \
             -scheme Hrafn \
-            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -destination 'generic/platform=iOS Simulator' \
             CODE_SIGNING_ALLOWED=NO
       - name: String catalogs up to date
         # Every user-facing string in the catalogs, so translators see it.
