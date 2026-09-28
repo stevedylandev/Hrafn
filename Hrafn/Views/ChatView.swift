@@ -49,6 +49,9 @@ struct ChatView: View {
     @State private var explainingEncryption = false
     /// The composer's round buttons follow Dynamic Type.
     @ScaledMetric(relativeTo: .title) private var buttonSize: CGFloat = 32
+    /// Height of the one-line message field and the attach button beside it.
+    @ScaledMetric(relativeTo: .body) private var fieldHeight: CGFloat = 38
+    @Environment(\.palette) private var palette
 
     private var session: AccountSession? { app.manager.session(for: route.accountID) }
     private var status: AccountStatus { app.manager.status(for: route.accountID) }
@@ -218,6 +221,9 @@ struct ChatView: View {
                     Text(title).font(.headline).foregroundStyle(.primary).lineLimit(1)
                     Text(subtitle).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
                 }
+                // The principal item takes its ideal width, so a long subject
+                // would run under the bar buttons: cap it to truncate.
+                .frame(maxWidth: 220)
             }
             .accessibilityIdentifier("chat.title")
         }
@@ -263,6 +269,7 @@ struct ChatView: View {
                             || messages[index - 1].isOutgoing),
                       sender: sender(of: message),
                       showsAvatar: endsRun(at: index),
+                      endsRun: endsRun(at: index),
                       showSender: room == nil ? { showingContact = true }
                         : message.senderNick.map { nick in { inspectingSender = nick } },
                       inspectSender: room == nil ? nil : { inspectingSender = $0 },
@@ -412,7 +419,10 @@ struct ChatView: View {
                 }
                 .font(.footnote)
                 .foregroundStyle(.secondary)
-                .padding(.horizontal)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .glass(in: RoundedRectangle(cornerRadius: 16))
+                .padding(.horizontal, 12)
                 .padding(.top, 8)
                 .accessibilityIdentifier("chat.roomState")
             }
@@ -431,7 +441,10 @@ struct ChatView: View {
                 }
                 .font(.footnote)
                 .foregroundStyle(.secondary)
-                .padding(.horizontal)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .glass(in: RoundedRectangle(cornerRadius: 16))
+                .padding(.horizontal, 12)
                 .padding(.top, 8)
                 .accessibilityIdentifier("chat.replyBanner")
             }
@@ -448,7 +461,10 @@ struct ChatView: View {
                 }
                 .font(.footnote)
                 .foregroundStyle(.secondary)
-                .padding(.horizontal)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .glass(in: RoundedRectangle(cornerRadius: 16))
+                .padding(.horizontal, 12)
                 .padding(.top, 8)
             }
             if recorder.isRecording {
@@ -457,7 +473,7 @@ struct ChatView: View {
                 inputRow
             }
         }
-        .themedBar()
+        // No backing: messages scroll under the glass, as in Messages.
     }
 
     private var inputRow: some View {
@@ -467,44 +483,56 @@ struct ChatView: View {
                     Button { pickingPhotos = true } label: { Label("Photos & Videos", systemImage: "photo.on.rectangle") }
                     Button { importingFiles = true } label: { Label("File", systemImage: "doc") }
                 } label: {
-                    if preparing {
-                        ProgressView().frame(width: buttonSize, height: buttonSize)
-                    } else {
-                        Image(systemName: "paperclip.circle.fill").font(.system(size: buttonSize))
+                    Group {
+                        if preparing {
+                            ProgressView()
+                        } else {
+                            Image(systemName: "plus").font(.system(size: buttonSize * 0.55, weight: .regular))
+                        }
                     }
+                    .foregroundStyle(palette.map { AnyShapeStyle($0.text) } ?? AnyShapeStyle(.primary))
+                    .frame(width: fieldHeight, height: fieldHeight)
+                    .glass(in: Circle(), interactive: true)
                 }
                 .disabled(preparing || !canAttach)
-                .padding(.bottom, 2)
                 .accessibilityLabel("Attach Photo or File")
                 .accessibilityIdentifier("chat.attach")
             }
-            TextField("Message", text: $text, axis: .vertical)
-                .lineLimit(1...6)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(RoundedRectangle(cornerRadius: 20).fill(.surface))
-                .onChange(of: text) { old, new in typingChanged(from: old, to: new) }
-                .accessibilityIdentifier("chat.composer")
-            if editing == nil, text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                Button {
-                    Task { await startRecording() }
-                } label: {
-                    Image(systemName: "mic.circle.fill").font(.system(size: buttonSize))
+            HStack(alignment: .bottom, spacing: 4) {
+                TextField("Message", text: $text, axis: .vertical)
+                    .lineLimit(1...6)
+                    .padding(.vertical, 8)
+                    .frame(minHeight: fieldHeight)
+                    .onChange(of: text) { old, new in typingChanged(from: old, to: new) }
+                    .accessibilityIdentifier("chat.composer")
+                if editing == nil, text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Button {
+                        Task { await startRecording() }
+                    } label: {
+                        Image(systemName: "mic")
+                            .font(.system(size: buttonSize * 0.6))
+                            .foregroundStyle(.secondary)
+                            .frame(width: buttonSize, height: fieldHeight)
+                    }
+                    .disabled(!canAttach)
+                    .accessibilityLabel("Record voice message")
+                    .accessibilityIdentifier("chat.record")
+                } else {
+                    Button {
+                        Task { await send() }
+                    } label: {
+                        Image(systemName: editing == nil ? "arrow.up.circle.fill" : "checkmark.circle.fill")
+                            .font(.system(size: buttonSize * 0.9))
+                            .frame(width: buttonSize, height: fieldHeight)
+                    }
+                    .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    .accessibilityLabel(editing == nil ? "Send" : "Save edit")
+                    .accessibilityIdentifier("chat.send")
                 }
-                .disabled(!canAttach)
-                .accessibilityLabel("Record voice message")
-                .accessibilityIdentifier("chat.record")
-            } else {
-                Button {
-                    Task { await send() }
-                } label: {
-                    Image(systemName: editing == nil ? "arrow.up.circle.fill" : "checkmark.circle.fill")
-                        .font(.system(size: buttonSize))
-                }
-                .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                .accessibilityLabel(editing == nil ? "Send" : "Save edit")
-                .accessibilityIdentifier("chat.send")
             }
+            .padding(.leading, 14)
+            .padding(.trailing, 3)
+            .glass(in: RoundedRectangle(cornerRadius: fieldHeight / 2))
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
@@ -531,6 +559,9 @@ struct ChatView: View {
             .accessibilityLabel("Send voice message")
             .accessibilityIdentifier("chat.sendRecording")
         }
+        .padding(.horizontal, 6)
+        .padding(.vertical, 3)
+        .glass(in: Capsule())
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
     }
@@ -815,6 +846,8 @@ private struct MessageBubble: View {
     var sender: Sender?
     /// The avatar shows at the end of a run; the rest keep its space.
     var showsAvatar = true
+    /// The last of a run from one sender: shows how it was encrypted.
+    var endsRun = true
     /// Tapping the avatar: the contact, or in a room the sender's address.
     var showSender: (() -> Void)?
     /// Group chat: shows who the sender is, from their nick.
@@ -876,7 +909,15 @@ private struct MessageBubble: View {
                 if !reactions.isEmpty, !message.isRetracted {
                     ReactionBar(reactions: reactions, isOutgoing: message.isOutgoing, toggle: toggleReaction)
                 }
-                if needsAttention { footer }
+                // Inset past the bubble's rounded corner.
+                Group {
+                    if needsAttention {
+                        footer
+                    } else if endsRun, message.encryption != nil {
+                        encryptionIcon.font(.caption2)
+                    }
+                }
+                .padding(.horizontal, 8)
             }
             if !message.isOutgoing { Spacer(minLength: 48) }
         }
@@ -1040,6 +1081,20 @@ struct PickedMovie: Transferable {
                 .appending(path: UUID().uuidString + "." + received.file.pathExtension)
             try FileManager.default.copyItem(at: received.file, to: copy)
             return PickedMovie(url: copy)
+        }
+    }
+}
+
+private extension View {
+    /// Liquid Glass where the system has it, a material before: either way
+    /// the messages behind show through.
+    @ViewBuilder
+    func glass(in shape: some Shape, interactive: Bool = false) -> some View {
+        if #available(iOS 26, *) {
+            glassEffect(interactive ? .regular.interactive() : .regular, in: shape)
+        } else {
+            background(.ultraThinMaterial, in: shape)
+                .overlay(shape.stroke(.separator, lineWidth: 0.5))
         }
     }
 }
