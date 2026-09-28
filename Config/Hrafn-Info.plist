@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<!-- Merged with the generated Info.plist: only keys build settings cannot express. -->
+<dict>
+	<!-- TLS through the system and SASL authentication only: exempt
+	     (docs/APP-STORE.md). Revisit with OMEMO in v2. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>dev.stevedylandev.hrafn.xmpp</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>xmpp</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

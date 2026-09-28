@@ -1,0 +1,30 @@
+{
+  "component": {
+    "componentHostname": "push.alpha.test",
+    "componentKey": "pushsecret",
+    "serverHostname": "prosody",
+    "serverPort": 5347
+  },
+  "pushModules": {
+    "sandbox": {
+      "type": "apple",
+      "is_default_module": true,
+      "apns": {
+        "certFilePath": "/etc/fpush/apple-sandbox.p12",
+        "certPassword": "CHANGE_ME",
+        "topic": "com.stevedylandev.Hrafn",
+        "environment": "sandbox"
+      }
+    },
+    "production": {
+      "type": "apple",
+      "is_default_module": false,
+      "apns": {
+        "certFilePath": "/etc/fpush/apple-production.p12",
+        "certPassword": "CHANGE_ME",
+        "topic": "com.stevedylandev.Hrafn",
+        "environment": "production"
+      }
+    }
+  }
+}

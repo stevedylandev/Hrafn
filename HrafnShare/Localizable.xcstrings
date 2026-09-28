@@ -1,0 +1,35 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%lld items" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld item"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld items"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Add a message" : {},
+    "Cancel" : {},
+    "Open Hrafn once and sign in before sharing to it." : {},
+    "Send" : {},
+    "Send to" : {},
+    "Start a chat in Hrafn first." : {},
+    "Hrafn" : {}
+  },
+  "version" : "1.0"
+}

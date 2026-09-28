@@ -1,0 +1,192 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// Elder Futhark, in order, used as list markers.
+const features = [
+	{ rune: 'ᚠ', title: 'Federated', text: 'Sign in with an account on any XMPP server. No central service, no lock-in.' },
+	{ rune: 'ᚢ', title: 'Push notifications', text: 'Messages arrive while the app is closed, without keeping a connection open.' },
+	{ rune: 'ᚦ', title: 'Group chats', text: 'Join and run multi-user rooms, with bookmarks and invites.' },
+	{ rune: 'ᚨ', title: 'Files and voice', text: 'Send photos, files and voice messages, or share straight from other apps.' },
+	{ rune: 'ᚱ', title: 'Modern messaging', text: 'Reactions, replies, message styling and read positions synced across devices.' },
+	{ rune: 'ᚲ', title: 'Built from the specs', text: 'An open protocol stack written from the RFCs and XEPs, with permissive dependencies only.' },
+];
+---
+
+<Layout>
+	<header class="hero">
+		<img class="logo" src="/hrafn.svg" alt="" width="512" height="512" />
+		<h1 class="title">Hrafn</h1>
+		<p class="runes" aria-hidden="true">ᚺᚱᚨᚠᚾ</p>
+		<p class="description">
+			A messenger for iOS built on XMPP, the open standard for chat. Talk to anyone on any
+			server, keep your history on every device, and own where your conversations live.
+		</p>
+    		<a class="badge" href="#" aria-label="Coming Soon">
+			<span class="badge-small">Coming Soon</span>
+		</a>
+
+		<!-- TODO: replace with the official App Store badge and the app's URL -->
+		<!-- <a class="badge" href="#" aria-label="Download on the App Store"> -->
+		<!-- 	<span class="badge-small">Download on the</span> -->
+		<!-- 	<span class="badge-large">App Store</span> -->
+		<!-- </a> -->
+	</header>
+
+	<section class="features">
+		<h2 class="section-label">Features</h2>
+		<ul class="item-list">
+			{
+				features.map((f) => (
+					<li class="item">
+						<span class="item-rune" aria-hidden="true">{f.rune}</span>
+						<div>
+							<h3 class="item-title">{f.title}</h3>
+							<p class="item-text">{f.text}</p>
+						</div>
+					</li>
+				))
+			}
+		</ul>
+	</section>
+
+	<!-- Screenshots go here -->
+
+	<footer class="footer">
+		<span>© 2026 Hrafn · MIT</span>
+	</footer>
+</Layout>
+
+<style>
+	.hero {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+		width: 100%;
+		margin-top: 5rem;
+		padding-bottom: 3rem;
+		border-bottom: 1px solid #333;
+	}
+
+	.logo {
+		width: 180px;
+		height: 180px;
+		margin-bottom: 2rem;
+	}
+
+	.title {
+		font-size: 28px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.5em;
+		/* balance the trailing letter-spacing so the word stays centred */
+		margin-right: -0.5em;
+		line-height: 1.2;
+	}
+
+	.runes {
+		margin-top: 0.75rem;
+		font-size: 16px;
+		letter-spacing: 0.6em;
+		margin-right: -0.6em;
+		opacity: 0.5;
+	}
+
+	.gloss {
+		margin-top: 0.25rem;
+		font-size: 12px;
+		text-transform: uppercase;
+		letter-spacing: 0.15em;
+		opacity: 0.5;
+	}
+
+	.description {
+		max-width: 46ch;
+		margin-top: 2rem;
+		opacity: 0.7;
+	}
+
+	.badge {
+		display: inline-flex;
+		flex-direction: column;
+		align-items: flex-start;
+		margin-top: 2rem;
+		padding: 0.4rem 1rem;
+		border: 1px solid #ffffff;
+		line-height: 1.2;
+	}
+
+	.badge-small {
+		font-size: 10px;
+		opacity: 0.7;
+	}
+
+	.badge-large {
+		font-size: 16px;
+		font-weight: 700;
+	}
+
+	.features {
+		width: 100%;
+	}
+
+	.section-label {
+		font-size: 12px;
+		font-weight: 400;
+		text-transform: uppercase;
+		letter-spacing: 0.15em;
+		opacity: 0.5;
+		margin-bottom: 0.5rem;
+	}
+
+	.item-list {
+		list-style: none;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.item {
+		display: flex;
+		gap: 1rem;
+		padding: 1rem 0;
+		border-bottom: 1px solid #333;
+	}
+
+	.item-rune {
+		flex: none;
+		width: 1.5rem;
+		font-size: 16px;
+		opacity: 0.5;
+	}
+
+	.item-title {
+		font-size: 16px;
+		font-weight: 400;
+	}
+
+	.item-text {
+		opacity: 0.7;
+	}
+
+	.footer {
+		display: flex;
+    justify-content: center;
+		width: 100%;
+		margin-top: auto;
+		padding: 2rem 0;
+		font-size: 12px;
+		opacity: 0.5;
+	}
+
+	@media (max-width: 480px) {
+		.hero {
+			margin-top: 3rem;
+			padding-bottom: 2rem;
+		}
+
+		.logo {
+			width: 140px;
+			height: 140px;
+		}
+	}
+</style>

@@ -1,0 +1,94 @@
+---
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const {
+	title = 'Hrafn',
+	description = 'A federated XMPP messenger for iOS, written from the specifications.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content={description} />
+		<meta name="theme-color" content="#121113" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="preload" href="/fonts/CommitMono-400-Regular.otf" as="font" type="font/otf" crossorigin />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+	</head>
+	<body>
+		<slot />
+	</body>
+</html>
+
+<style is:global>
+	@font-face {
+		font-family: 'Commit Mono';
+		src: url('/fonts/CommitMono-400-Regular.otf') format('opentype');
+		font-weight: 400;
+		font-style: normal;
+		font-display: swap;
+	}
+
+	@font-face {
+		font-family: 'Commit Mono';
+		src: url('/fonts/CommitMono-700-Regular.otf') format('opentype');
+		font-weight: 700;
+		font-style: normal;
+		font-display: swap;
+	}
+
+	* {
+		padding: 0;
+		margin: 0;
+		box-sizing: border-box;
+		font-family: 'Commit Mono', monospace, sans-serif;
+		scrollbar-width: none;
+		-ms-overflow-style: none;
+	}
+
+	html {
+		background: #121113;
+		color: #ffffff;
+		font-size: 14px;
+		line-height: 1.6;
+	}
+
+	html::-webkit-scrollbar {
+		display: none;
+	}
+
+	body {
+		display: flex;
+		flex-direction: column;
+		gap: 3rem;
+		min-height: 100vh;
+		max-width: 700px;
+		margin: auto;
+		padding: 0 1rem;
+	}
+
+	a {
+		color: #ffffff;
+		text-decoration: none;
+	}
+
+	a:hover {
+		opacity: 0.7;
+	}
+
+	@media (max-width: 480px) {
+		body {
+			gap: 2rem;
+			padding: 0 1rem;
+		}
+	}
+</style>

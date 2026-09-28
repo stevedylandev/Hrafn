@@ -1,0 +1,101 @@
+# Two XMPP servers on two domains, so federation and server-diversity issues
+# show up in development rather than in TestFlight.
+#
+#   alpha.test  Prosody   (primary development server)
+#   beta.test   ejabberd  (federation peer, different implementation)
+#
+# Fixed addresses and /etc/hosts entries stand in for DNS. Network aliases are
+# not enough: Prosody resolves with libunbound, which answers every `.test`
+# name NXDOMAIN from its built-in RFC 6761 local zone, whatever Docker's DNS
+# says. Entries from /etc/hosts are served (see `unbound` in prosody.cfg.lua).
+services:
+  prosody:
+    # Built locally: see docker/prosody/Dockerfile for why the Hub image is unusable.
+    build:
+      context: ./prosody
+    image: hrafn/prosody:local
+    container_name: hrafn-prosody
+    hostname: alpha.test
+    ports:
+      - "5222:5222"   # c2s (STARTTLS)
+      - "5223:5223"   # c2s Direct TLS (XEP-0368)
+      - "5269:5269"   # s2s
+      - "5280:5280"   # HTTP (file upload, BOSH disabled)
+      - "5281:5281"   # HTTPS
+      - "5347:5347"   # XEP-0114 components (push)
+    volumes:
+      - ./prosody/prosody.cfg.lua:/etc/prosody/prosody.cfg.lua:ro
+      - ./certs:/etc/prosody/certs:ro
+      - prosody-data:/var/lib/prosody
+    extra_hosts:
+      - "beta.test:172.30.0.11"
+      - "upload.beta.test:172.30.0.11"
+      - "conference.beta.test:172.30.0.11"
+      - "push.beta.test:172.30.0.11"
+    networks:
+      default:
+        ipv4_address: 172.30.0.10
+        aliases:
+          - alpha.test
+          - upload.alpha.test
+          - conference.alpha.test
+          - push.alpha.test
+
+  ejabberd:
+    # ghcr publishes arm64 as well as amd64; the Docker Hub ejabberd/ecs image is
+    # amd64-only and its fast_tls NIF fails to load under emulation
+    # (`bad return value: :nif_not_loaded` on every accepted connection).
+    image: ghcr.io/processone/ejabberd:26.07
+    container_name: hrafn-ejabberd
+    hostname: beta.test
+    ports:
+      - "15222:5222"
+      - "15223:5223"
+      - "15269:5269"
+      - "5443:5443"     # HTTPS (file upload)
+      - "15347:5347"
+    volumes:
+      - ./ejabberd/ejabberd.yml:/home/ejabberd/conf/ejabberd.yml:ro
+      - ./certs:/home/ejabberd/conf/certs:ro
+      - ejabberd-data:/home/ejabberd/database
+    extra_hosts:
+      - "alpha.test:172.30.0.10"
+      - "upload.alpha.test:172.30.0.10"
+      - "conference.alpha.test:172.30.0.10"
+      - "push.alpha.test:172.30.0.10"
+    networks:
+      default:
+        ipv4_address: 172.30.0.11
+        aliases:
+          - beta.test
+          - upload.beta.test
+          - conference.beta.test
+          - push.beta.test
+
+  # XEP-0357 app server (docker/fpush/README.md). Needs an APNs certificate,
+  # so it only starts with `--profile push`.
+  fpush:
+    profiles: ["push"]
+    build:
+      context: https://github.com/monal-im/fpush.git
+      dockerfile: docker/Dockerfile
+    image: hrafn/fpush:local
+    container_name: hrafn-fpush
+    init: true
+    environment:
+      RUST_LOG: info
+    volumes:
+      - ./fpush/settings.json:/etc/fpush/settings.json:ro
+      - ./fpush/apple-sandbox.p12:/etc/fpush/apple-sandbox.p12:ro
+    depends_on:
+      - prosody
+
+volumes:
+  prosody-data:
+  ejabberd-data:
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24

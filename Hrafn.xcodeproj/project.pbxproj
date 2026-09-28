@@ -1,0 +1,983 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AA2000000000000000000001 /* XMPPCore in Frameworks */ = {isa = PBXBuildFile; productRef = AA1000000000000000000001 /* XMPPCore */; };
+		AA2000000000000000000002 /* XMPPXML in Frameworks */ = {isa = PBXBuildFile; productRef = AA1000000000000000000002 /* XMPPXML */; };
+		AA2000000000000000000003 /* XMPPTransport in Frameworks */ = {isa = PBXBuildFile; productRef = AA1000000000000000000003 /* XMPPTransport */; };
+		AA2000000000000000000004 /* HrafnStore in Frameworks */ = {isa = PBXBuildFile; productRef = AA1000000000000000000004 /* HrafnStore */; };
+		AA2000000000000000000005 /* HrafnServices in Frameworks */ = {isa = PBXBuildFile; productRef = AA1000000000000000000005 /* HrafnServices */; };
+		AA2000000000000000000006 /* XMPPIM in Frameworks */ = {isa = PBXBuildFile; productRef = AA1000000000000000000006 /* XMPPIM */; };
+		AA2000000000000000000007 /* XMPPClient in Frameworks */ = {isa = PBXBuildFile; productRef = AA1000000000000000000007 /* XMPPClient */; };
+		BB2000000000000000000001 /* HrafnServices in Frameworks */ = {isa = PBXBuildFile; productRef = BB1000000000000000000001 /* HrafnServices */; };
+		BB2000000000000000000002 /* HrafnStore in Frameworks */ = {isa = PBXBuildFile; productRef = BB1000000000000000000002 /* HrafnStore */; };
+		BB2000000000000000000003 /* HrafnNotificationService.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000001 /* HrafnNotificationService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		CC2000000000000000000001 /* HrafnServices in Frameworks */ = {isa = PBXBuildFile; productRef = CC1000000000000000000001 /* HrafnServices */; };
+		CC2000000000000000000002 /* HrafnStore in Frameworks */ = {isa = PBXBuildFile; productRef = CC1000000000000000000002 /* HrafnStore */; };
+		CC2000000000000000000003 /* HrafnShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000001 /* HrafnShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		0CF158E83068684F007BE60C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0CF158D23068684D007BE60C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0CF158D93068684D007BE60C;
+			remoteInfo = Hrafn;
+		};
+		0CF158F23068684F007BE60C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0CF158D23068684D007BE60C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0CF158D93068684D007BE60C;
+			remoteInfo = Hrafn;
+		};
+		BB0000000000000000000010 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0CF158D23068684D007BE60C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BB0000000000000000000002;
+			remoteInfo = HrafnNotificationService;
+		};
+		CC0000000000000000000010 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0CF158D23068684D007BE60C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CC0000000000000000000002;
+			remoteInfo = HrafnShare;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		BB0000000000000000000011 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				BB2000000000000000000003 /* HrafnNotificationService.appex in Embed Foundation Extensions */,
+				CC2000000000000000000003 /* HrafnShare.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		0CF158DA3068684D007BE60C /* Hrafn.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hrafn.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0CF158E73068684F007BE60C /* HrafnTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HrafnTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0CF158F13068684F007BE60C /* HrafnUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HrafnUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB0000000000000000000001 /* HrafnNotificationService.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HrafnNotificationService.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC0000000000000000000001 /* HrafnShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HrafnShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		0CF158DC3068684D007BE60C /* Hrafn */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Hrafn;
+			sourceTree = "<group>";
+		};
+		0CF158EA3068684F007BE60C /* HrafnTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HrafnTests;
+			sourceTree = "<group>";
+		};
+		0CF158F43068684F007BE60C /* HrafnUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HrafnUITests;
+			sourceTree = "<group>";
+		};
+		BB0000000000000000000003 /* HrafnNotificationService */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HrafnNotificationService;
+			sourceTree = "<group>";
+		};
+		CC0000000000000000000003 /* HrafnShare */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HrafnShare;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0CF158D73068684D007BE60C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA2000000000000000000001 /* XMPPCore in Frameworks */,
+				AA2000000000000000000002 /* XMPPXML in Frameworks */,
+				AA2000000000000000000003 /* XMPPTransport in Frameworks */,
+				AA2000000000000000000004 /* HrafnStore in Frameworks */,
+				AA2000000000000000000005 /* HrafnServices in Frameworks */,
+				AA2000000000000000000006 /* XMPPIM in Frameworks */,
+				AA2000000000000000000007 /* XMPPClient in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0CF158E43068684F007BE60C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0CF158EE3068684F007BE60C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB0000000000000000000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BB2000000000000000000001 /* HrafnServices in Frameworks */,
+				BB2000000000000000000002 /* HrafnStore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC0000000000000000000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC2000000000000000000001 /* HrafnServices in Frameworks */,
+				CC2000000000000000000002 /* HrafnStore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0CF158D13068684D007BE60C = {
+			isa = PBXGroup;
+			children = (
+				0CF158DC3068684D007BE60C /* Hrafn */,
+				0CF158EA3068684F007BE60C /* HrafnTests */,
+				0CF158F43068684F007BE60C /* HrafnUITests */,
+				BB0000000000000000000003 /* HrafnNotificationService */,
+				CC0000000000000000000003 /* HrafnShare */,
+				0CF158DB3068684D007BE60C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		0CF158DB3068684D007BE60C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0CF158DA3068684D007BE60C /* Hrafn.app */,
+				0CF158E73068684F007BE60C /* HrafnTests.xctest */,
+				0CF158F13068684F007BE60C /* HrafnUITests.xctest */,
+				BB0000000000000000000001 /* HrafnNotificationService.appex */,
+				CC0000000000000000000001 /* HrafnShare.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0CF158D93068684D007BE60C /* Hrafn */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0CF158FB3068684F007BE60C /* Build configuration list for PBXNativeTarget "Hrafn" */;
+			buildPhases = (
+				0CF158D63068684D007BE60C /* Sources */,
+				0CF158D73068684D007BE60C /* Frameworks */,
+				0CF158D83068684D007BE60C /* Resources */,
+				BB0000000000000000000011 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BB0000000000000000000012 /* PBXTargetDependency */,
+				CC0000000000000000000012 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				0CF158DC3068684D007BE60C /* Hrafn */,
+			);
+			name = Hrafn;
+			packageProductDependencies = (
+				AA1000000000000000000001 /* XMPPCore */,
+				AA1000000000000000000002 /* XMPPXML */,
+				AA1000000000000000000003 /* XMPPTransport */,
+				AA1000000000000000000004 /* HrafnStore */,
+				AA1000000000000000000005 /* HrafnServices */,
+				AA1000000000000000000006 /* XMPPIM */,
+				AA1000000000000000000007 /* XMPPClient */,
+			);
+			productName = Hrafn;
+			productReference = 0CF158DA3068684D007BE60C /* Hrafn.app */;
+			productType = "com.apple.product-type.application";
+		};
+		0CF158E63068684F007BE60C /* HrafnTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0CF158FE3068684F007BE60C /* Build configuration list for PBXNativeTarget "HrafnTests" */;
+			buildPhases = (
+				0CF158E33068684F007BE60C /* Sources */,
+				0CF158E43068684F007BE60C /* Frameworks */,
+				0CF158E53068684F007BE60C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0CF158E93068684F007BE60C /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				0CF158EA3068684F007BE60C /* HrafnTests */,
+			);
+			name = HrafnTests;
+			packageProductDependencies = (
+			);
+			productName = HrafnTests;
+			productReference = 0CF158E73068684F007BE60C /* HrafnTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		0CF158F03068684F007BE60C /* HrafnUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0CF159013068684F007BE60C /* Build configuration list for PBXNativeTarget "HrafnUITests" */;
+			buildPhases = (
+				0CF158ED3068684F007BE60C /* Sources */,
+				0CF158EE3068684F007BE60C /* Frameworks */,
+				0CF158EF3068684F007BE60C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0CF158F33068684F007BE60C /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				0CF158F43068684F007BE60C /* HrafnUITests */,
+			);
+			name = HrafnUITests;
+			packageProductDependencies = (
+			);
+			productName = HrafnUITests;
+			productReference = 0CF158F13068684F007BE60C /* HrafnUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		BB0000000000000000000002 /* HrafnNotificationService */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BB0000000000000000000020 /* Build configuration list for PBXNativeTarget "HrafnNotificationService" */;
+			buildPhases = (
+				BB0000000000000000000005 /* Sources */,
+				BB0000000000000000000004 /* Frameworks */,
+				BB0000000000000000000006 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				BB0000000000000000000003 /* HrafnNotificationService */,
+			);
+			name = HrafnNotificationService;
+			packageProductDependencies = (
+				BB1000000000000000000001 /* HrafnServices */,
+				BB1000000000000000000002 /* HrafnStore */,
+			);
+			productName = HrafnNotificationService;
+			productReference = BB0000000000000000000001 /* HrafnNotificationService.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		CC0000000000000000000002 /* HrafnShare */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC0000000000000000000020 /* Build configuration list for PBXNativeTarget "HrafnShare" */;
+			buildPhases = (
+				CC0000000000000000000005 /* Sources */,
+				CC0000000000000000000004 /* Frameworks */,
+				CC0000000000000000000006 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				CC0000000000000000000003 /* HrafnShare */,
+			);
+			name = HrafnShare;
+			packageProductDependencies = (
+				CC1000000000000000000001 /* HrafnServices */,
+				CC1000000000000000000002 /* HrafnStore */,
+			);
+			productName = HrafnShare;
+			productReference = CC0000000000000000000001 /* HrafnShare.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0CF158D23068684D007BE60C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2610;
+				LastUpgradeCheck = 2610;
+				TargetAttributes = {
+					0CF158D93068684D007BE60C = {
+						CreatedOnToolsVersion = 26.1.1;
+					};
+					0CF158E63068684F007BE60C = {
+						CreatedOnToolsVersion = 26.1.1;
+						TestTargetID = 0CF158D93068684D007BE60C;
+					};
+					0CF158F03068684F007BE60C = {
+						CreatedOnToolsVersion = 26.1.1;
+						TestTargetID = 0CF158D93068684D007BE60C;
+					};
+					BB0000000000000000000002 = {
+						CreatedOnToolsVersion = 26.1.1;
+					};
+					CC0000000000000000000002 = {
+						CreatedOnToolsVersion = 26.1.1;
+					};
+				};
+			};
+			buildConfigurationList = 0CF158D53068684D007BE60C /* Build configuration list for PBXProject "Hrafn" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 0CF158D13068684D007BE60C;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				AA3000000000000000000001 /* XCLocalSwiftPackageReference "Packages/XMPPKit" */,
+				AA3000000000000000000002 /* XCLocalSwiftPackageReference "Packages/HrafnKit" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 0CF158DB3068684D007BE60C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				0CF158D93068684D007BE60C /* Hrafn */,
+				0CF158E63068684F007BE60C /* HrafnTests */,
+				0CF158F03068684F007BE60C /* HrafnUITests */,
+				BB0000000000000000000002 /* HrafnNotificationService */,
+				CC0000000000000000000002 /* HrafnShare */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0CF158D83068684D007BE60C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0CF158E53068684F007BE60C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0CF158EF3068684F007BE60C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB0000000000000000000006 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC0000000000000000000006 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0CF158D63068684D007BE60C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0CF158E33068684F007BE60C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0CF158ED3068684F007BE60C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB0000000000000000000005 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC0000000000000000000005 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0CF158E93068684F007BE60C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0CF158D93068684D007BE60C /* Hrafn */;
+			targetProxy = 0CF158E83068684F007BE60C /* PBXContainerItemProxy */;
+		};
+		0CF158F33068684F007BE60C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0CF158D93068684D007BE60C /* Hrafn */;
+			targetProxy = 0CF158F23068684F007BE60C /* PBXContainerItemProxy */;
+		};
+		BB0000000000000000000012 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BB0000000000000000000002 /* HrafnNotificationService */;
+			targetProxy = BB0000000000000000000010 /* PBXContainerItemProxy */;
+		};
+		CC0000000000000000000012 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CC0000000000000000000002 /* HrafnShare */;
+			targetProxy = CC0000000000000000000010 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0CF158F93068684F007BE60C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = W8QNM2N67P;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		0CF158FA3068684F007BE60C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = W8QNM2N67P;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		0CF158FC3068684F007BE60C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Config/Hrafn.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W8QNM2N67P;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/Hrafn-Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Hrafn uses the camera to scan contact QR codes.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Hrafn records voice messages with the microphone.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Hrafn saves photos and videos you choose to your library.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stevedylandev.Hrafn;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		0CF158FD3068684F007BE60C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Config/Hrafn.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W8QNM2N67P;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/Hrafn-Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Hrafn uses the camera to scan contact QR codes.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Hrafn records voice messages with the microphone.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Hrafn saves photos and videos you choose to your library.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stevedylandev.Hrafn;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		0CF158FF3068684F007BE60C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W8QNM2N67P;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stevedylandev.HrafnTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hrafn.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Hrafn";
+			};
+			name = Debug;
+		};
+		0CF159003068684F007BE60C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W8QNM2N67P;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stevedylandev.HrafnTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hrafn.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Hrafn";
+			};
+			name = Release;
+		};
+		0CF159023068684F007BE60C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W8QNM2N67P;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stevedylandev.HrafnUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Hrafn;
+			};
+			name = Debug;
+		};
+		0CF159033068684F007BE60C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W8QNM2N67P;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stevedylandev.HrafnUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Hrafn;
+			};
+			name = Release;
+		};
+		BB0000000000000000000021 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/HrafnNotificationService.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W8QNM2N67P;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/HrafnNotificationService-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = HrafnNotificationService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stevedylandev.Hrafn.NotificationService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BB0000000000000000000022 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/HrafnNotificationService.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W8QNM2N67P;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/HrafnNotificationService-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = HrafnNotificationService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stevedylandev.Hrafn.NotificationService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		CC0000000000000000000021 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/HrafnShare.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W8QNM2N67P;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/HrafnShare-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Hrafn;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stevedylandev.Hrafn.Share;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CC0000000000000000000022 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/HrafnShare.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W8QNM2N67P;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/HrafnShare-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Hrafn;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stevedylandev.Hrafn.Share;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0CF158D53068684D007BE60C /* Build configuration list for PBXProject "Hrafn" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0CF158F93068684F007BE60C /* Debug */,
+				0CF158FA3068684F007BE60C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0CF158FB3068684F007BE60C /* Build configuration list for PBXNativeTarget "Hrafn" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0CF158FC3068684F007BE60C /* Debug */,
+				0CF158FD3068684F007BE60C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0CF158FE3068684F007BE60C /* Build configuration list for PBXNativeTarget "HrafnTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0CF158FF3068684F007BE60C /* Debug */,
+				0CF159003068684F007BE60C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0CF159013068684F007BE60C /* Build configuration list for PBXNativeTarget "HrafnUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0CF159023068684F007BE60C /* Debug */,
+				0CF159033068684F007BE60C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BB0000000000000000000020 /* Build configuration list for PBXNativeTarget "HrafnNotificationService" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB0000000000000000000021 /* Debug */,
+				BB0000000000000000000022 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CC0000000000000000000020 /* Build configuration list for PBXNativeTarget "HrafnShare" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC0000000000000000000021 /* Debug */,
+				CC0000000000000000000022 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		AA3000000000000000000001 /* XCLocalSwiftPackageReference "Packages/XMPPKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/XMPPKit;
+		};
+		AA3000000000000000000002 /* XCLocalSwiftPackageReference "Packages/HrafnKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/HrafnKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AA1000000000000000000001 /* XMPPCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = XMPPCore;
+		};
+		AA1000000000000000000002 /* XMPPXML */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = XMPPXML;
+		};
+		AA1000000000000000000003 /* XMPPTransport */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = XMPPTransport;
+		};
+		AA1000000000000000000004 /* HrafnStore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HrafnStore;
+		};
+		AA1000000000000000000005 /* HrafnServices */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HrafnServices;
+		};
+		AA1000000000000000000006 /* XMPPIM */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = XMPPIM;
+		};
+		AA1000000000000000000007 /* XMPPClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = XMPPClient;
+		};
+		BB1000000000000000000001 /* HrafnServices */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HrafnServices;
+		};
+		BB1000000000000000000002 /* HrafnStore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HrafnStore;
+		};
+		CC1000000000000000000001 /* HrafnServices */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HrafnServices;
+		};
+		CC1000000000000000000002 /* HrafnStore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HrafnStore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 0CF158D23068684D007BE60C /* Project object */;
+}

@@ -1,0 +1,141 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%@ already exists" : {
+
+    },
+    "%@ has no devices that can receive encrypted messages" : {
+
+    },
+    "%@ is not a group chat" : {
+
+    },
+    "A password is required" : {
+
+    },
+    "Connecting…" : {
+
+    },
+    "Could not join" : {
+
+    },
+    "Encryption isn’t available for this account" : {
+
+    },
+    "Enter a nickname" : {
+
+    },
+    "Failed: %@" : {
+
+    },
+    "Mark as Read" : {
+
+    },
+    "Message" : {
+
+    },
+    "No longer a member" : {
+
+    },
+    "None of %@’s devices is trusted. Check their devices in the group’s details." : {
+
+    },
+    "None of this contact’s devices is trusted. Check their devices in the contact’s details." : {
+
+    },
+    "Offline" : {
+
+    },
+    "Online" : {
+
+    },
+    "Only members may join" : {
+
+    },
+    "Only private groups (members only, addresses visible) can be encrypted" : {
+
+    },
+    "Reconnecting (%lld)…" : {
+
+    },
+    "Reconnecting…" : {
+
+    },
+    "Removed by a technical problem" : {
+
+    },
+    "Reply" : {
+
+    },
+    "Send" : {
+
+    },
+    "The file could not be read" : {
+
+    },
+    "The file is larger than the server allows" : {
+
+    },
+    "The file is larger than the server allows (%@)" : {
+
+    },
+    "The group’s members aren’t known yet" : {
+
+    },
+    "The room did not answer" : {
+
+    },
+    "The room does not exist" : {
+
+    },
+    "The room has not confirmed this message yet" : {
+
+    },
+    "The room is full" : {
+
+    },
+    "The room no longer exists" : {
+
+    },
+    "The room was destroyed" : {
+
+    },
+    "The room's server cannot be reached" : {
+
+    },
+    "The service shut down" : {
+
+    },
+    "The upload service gave an unusable address" : {
+
+    },
+    "This contact has no devices that can receive encrypted messages" : {
+
+    },
+    "This message is encrypted and can’t be read on this device." : {
+
+    },
+    "This room does not support removing messages" : {
+
+    },
+    "This server has no group chat service" : {
+
+    },
+    "Upload quota reached; try again later" : {
+
+    },
+    "Waiting for network" : {
+
+    },
+    "You are banned from this room" : {
+
+    },
+    "You may not create rooms on this service" : {
+
+    },
+    "Your nickname is in use" : {
+
+    }
+  },
+  "version" : "1.0"
+}

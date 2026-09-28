@@ -1,0 +1,1044 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+      "shouldTranslate" : false
+    },
+    "%@" : {
+      "shouldTranslate" : false
+    },
+    "%@, %lld" : {
+      "comment" : "VoiceOver label of a reaction: the emoji and how many people reacted with it.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$lld"
+          }
+        }
+      }
+    },
+    "%@, including you" : {
+
+    },
+    "%@: " : {
+
+    },
+    "%@: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@: %2$@"
+          }
+        }
+      }
+    },
+    "%lld" : {
+      "shouldTranslate" : false
+    },
+    "%lld MB" : {
+
+    },
+    "%lld participants" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld participant"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld participants"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld percent" : {
+
+    },
+    "%lld unread" : {
+
+    },
+    "5222" : {
+      "shouldTranslate" : false
+    },
+    "@" : {
+      "shouldTranslate" : false
+    },
+    "Accent Color" : {
+
+    },
+    "Accept" : {
+
+    },
+    "Accept any certificate" : {
+
+    },
+    "Account" : {
+
+    },
+    "Account Removed" : {
+
+    },
+    "Accounts" : {
+
+    },
+    "Add" : {
+
+    },
+    "Add Account" : {
+
+    },
+    "Add Contact" : {
+
+    },
+    "Add to Contacts" : {
+
+    },
+    "Address" : {
+
+    },
+    "Admin" : {
+
+    },
+    "Affiliation" : {
+
+    },
+    "All messages" : {
+
+    },
+    "Always" : {
+
+    },
+    "Anyone can find and join the channel. Addresses are only visible to moderators." : {
+
+    },
+    "Appearance" : {
+
+    },
+    "Attach Photo or File" : {
+
+    },
+    "Automatic" : {
+
+    },
+    "Availability" : {
+
+    },
+    "Away" : {
+
+    },
+    "Background (Dark)" : {
+
+    },
+    "Background (Light)" : {
+
+    },
+    "Ban" : {
+
+    },
+    "Banned" : {
+
+    },
+    "Block" : {
+
+    },
+    "Blocked" : {
+
+    },
+    "Blocking stops their messages and hides your status from them." : {
+
+    },
+    "Calls themselves “%@”" : {
+
+    },
+    "Camera Unavailable" : {
+
+    },
+    "Can't Show This Image" : {
+
+    },
+    "Cancel" : {
+
+    },
+    "Cancel editing" : {
+
+    },
+    "Cancel reply" : {
+
+    },
+    "Can’t be decrypted" : {
+
+    },
+    "Change" : {
+
+    },
+    "Change Nickname" : {
+
+    },
+    "Change Subject" : {
+
+    },
+    "Chats" : {
+
+    },
+    "Chats and messages" : {
+
+    },
+    "Choose a contact from the list." : {
+
+    },
+    "Choose a conversation from the list." : {
+
+    },
+    "Choose an account to see its settings." : {
+
+    },
+    "Choose avatar" : {
+
+    },
+    "Clear" : {
+
+    },
+    "Compare fingerprints in person, or scan the code their app shows. Once a device is verified, new devices wait for your decision before messages are encrypted for them." : {
+
+    },
+    "Configure" : {
+
+    },
+    "Configure…" : {
+
+    },
+    "Connection" : {
+
+    },
+    "Connection settings" : {
+
+    },
+    "Contacts" : {
+
+    },
+    "Contacts scan this code, or compare the fingerprint, to verify your messages come from this device." : {
+
+    },
+    "Contacts see this until they name you themselves." : {
+
+    },
+    "Contacts stop encrypting messages for it. If the device is still in use, it adds itself back the next time it connects." : {
+
+    },
+    "Copy" : {
+
+    },
+    "Copy Address" : {
+
+    },
+    "Copy Link" : {
+
+    },
+    "Couldn't Complete" : {
+
+    },
+    "Couldn't Download" : {
+
+    },
+    "Couldn't Update Profile" : {
+
+    },
+    "Create" : {
+
+    },
+    "Dark" : {
+
+    },
+    "Debug" : {
+
+    },
+    "Decline" : {
+
+    },
+    "Default (%@)" : {
+
+    },
+    "Delete" : {
+
+    },
+    "Delivered" : {
+
+    },
+    "Destroy" : {
+
+    },
+    "Destroy %@ for everyone?" : {
+
+    },
+    "Destroy Room" : {
+
+    },
+    "Details" : {
+
+    },
+    "Device %@" : {
+
+    },
+    "Direct TLS" : {
+
+    },
+    "Direct TLS (XEP-0368)" : {
+
+    },
+    "Disabled" : {
+
+    },
+    "Discard recording" : {
+
+    },
+    "Do not disturb" : {
+
+    },
+    "Domain" : {
+
+    },
+    "Done" : {
+
+    },
+    "Don’t Trust" : {
+
+    },
+    "Double-tap to download" : {
+
+    },
+    "Double-tap to view" : {
+
+    },
+    "Download" : {
+
+    },
+    "Download automatically" : {
+
+    },
+    "Draft: " : {
+
+    },
+    "Edit" : {
+
+    },
+    "Editing: %@" : {
+
+    },
+    "Enabled" : {
+
+    },
+    "Encrypted" : {
+
+    },
+    "Encrypted (OMEMO)" : {
+
+    },
+    "Encrypted · %@" : {
+
+    },
+    "Encryption" : {
+
+    },
+    "Encryption Devices" : {
+
+    },
+    "Everyone is removed and the room's history is gone." : {
+
+    },
+    "Extended away" : {
+
+    },
+    "Failed" : {
+
+    },
+    "Failed: %@" : {
+
+    },
+    "File" : {
+
+    },
+    "Filter" : {
+
+    },
+    "Font" : {
+
+    },
+    "Free to chat" : {
+
+    },
+    "From a device you haven’t trusted" : {
+
+    },
+    "Group Info" : {
+
+    },
+    "Groups" : {
+
+    },
+    "History could not be opened and is not being saved: %@" : {
+
+    },
+    "Host (default: DNS lookup)" : {
+
+    },
+    "Host override" : {
+
+    },
+    "Inactive" : {
+
+    },
+    "Invitation" : {
+
+    },
+    "Invitations" : {
+
+    },
+    "Invite" : {
+
+    },
+    "Invited by %@" : {
+
+    },
+    "Invite…" : {
+
+    },
+    "It is removed for everyone in the room, who will see that a moderator removed it." : {
+
+    },
+    "Join" : {
+
+    },
+    "Join Again" : {
+
+    },
+    "Join Group Chat" : {
+
+    },
+    "Joining…" : {
+
+    },
+    "Kick" : {
+
+    },
+    "Kind" : {
+
+    },
+    "Larger files, and everything when automatic download is off, wait for a tap." : {
+
+    },
+    "Leave" : {
+
+    },
+    "Leave %@?" : {
+
+    },
+    "Leave and Delete History" : {
+
+    },
+    "Light" : {
+
+    },
+    "Load earlier messages" : {
+
+    },
+    "Make Member" : {
+
+    },
+    "Mark as Verified" : {
+
+    },
+    "Mark as Verified?" : {
+
+    },
+    "Mark as Verified…" : {
+
+    },
+    "Member" : {
+
+    },
+    "Mentions only" : {
+
+    },
+    "Mentions you" : {
+
+    },
+    "Message" : {
+
+    },
+    "Message (optional)" : {
+
+    },
+    "Message Privately" : {
+
+    },
+    "Message retracted" : {
+
+    },
+    "Messages" : {
+
+    },
+    "Moderator" : {
+
+    },
+    "Monospaced" : {
+
+    },
+    "More Reactions" : {
+
+    },
+    "Mute" : {
+
+    },
+    "My Other Devices" : {
+
+    },
+    "My Status" : {
+
+    },
+    "Name" : {
+
+    },
+    "Name (optional)" : {
+
+    },
+    "Never" : {
+
+    },
+    "New Chat" : {
+
+    },
+    "New Group" : {
+
+    },
+    "New password" : {
+
+    },
+    "New, not trusted yet" : {
+
+    },
+    "Nickname" : {
+
+    },
+    "Nickname (optional)" : {
+
+    },
+    "No Account Selected" : {
+
+    },
+    "No Chat Selected" : {
+
+    },
+    "No Contact Selected" : {
+
+    },
+    "No Conversations" : {
+
+    },
+    "No contacts yet" : {
+
+    },
+    "No encryption devices seen yet." : {
+
+    },
+    "Nobody" : {
+
+    },
+    "None" : {
+
+    },
+    "None of the devices in that code has been seen here yet. Try again after exchanging a message." : {
+
+    },
+    "Not Encrypted" : {
+
+    },
+    "Not joined" : {
+
+    },
+    "Not registered" : {
+
+    },
+    "Not sharing status" : {
+
+    },
+    "Not trusted" : {
+
+    },
+    "Notifications" : {
+
+    },
+    "Notify" : {
+
+    },
+    "OK" : {
+
+    },
+    "Offline" : {
+
+    },
+    "On" : {
+
+    },
+    "On Wi-Fi" : {
+
+    },
+    "Online" : {
+
+    },
+    "Only if the fingerprint matches, character for character, what their device shows." : {
+
+    },
+    "Only needed when the server's DNS records are missing or you connect to a local test server." : {
+
+    },
+    "Only people you invite can join, and members see each other's addresses." : {
+
+    },
+    "Only private groups can be encrypted: members only, with members’ addresses visible to each other. An owner can change this in Group Info." : {
+
+    },
+    "Open Chat" : {
+
+    },
+    "Open stream" : {
+
+    },
+    "Owner" : {
+
+    },
+    "Participant" : {
+
+    },
+    "Participants (%lld)" : {
+
+    },
+    "Password" : {
+
+    },
+    "Password (if the room has one)" : {
+
+    },
+    "Pause" : {
+
+    },
+    "Photo" : {
+
+    },
+    "Photos & Videos" : {
+
+    },
+    "Photos, Videos & Files" : {
+
+    },
+    "Play" : {
+
+    },
+    "Port" : {
+
+    },
+    "Private Group" : {
+
+    },
+    "Private message · in the room" : {
+
+    },
+    "Private message · not in the room" : {
+
+    },
+    "Profile" : {
+
+    },
+    "Public Channel" : {
+
+    },
+    "QR code for %@" : {
+
+    },
+    "QR scanning needs a camera and permission to use it." : {
+
+    },
+    "React with %@" : {
+
+    },
+    "Read" : {
+
+    },
+    "Reason (optional)" : {
+
+    },
+    "Record voice message" : {
+
+    },
+    "Recording" : {
+
+    },
+    "Remove" : {
+
+    },
+    "Remove %@?" : {
+
+    },
+    "Remove Account" : {
+
+    },
+    "Remove Avatar" : {
+
+    },
+    "Remove Contact" : {
+
+    },
+    "Remove Message" : {
+
+    },
+    "Remove This Device?" : {
+
+    },
+    "Remove from Account…" : {
+
+    },
+    "Remove…" : {
+
+    },
+    "Reply" : {
+
+    },
+    "Reply to %@: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Reply to %1$@: %2$@"
+          }
+        }
+      }
+    },
+    "Replying to %@" : {
+
+    },
+    "Request" : {
+
+    },
+    "Request sent" : {
+
+    },
+    "Requests" : {
+
+    },
+    "Requests · %@" : {
+
+    },
+    "Reset Appearance" : {
+
+    },
+    "Retract" : {
+
+    },
+    "Review" : {
+
+    },
+    "Role" : {
+
+    },
+    "Rounded" : {
+
+    },
+    "SRV lookup" : {
+
+    },
+    "Save" : {
+
+    },
+    "Save and Reconnect" : {
+
+    },
+    "Save edit" : {
+
+    },
+    "Scan QR Code" : {
+
+    },
+    "Scan Verification Code" : {
+
+    },
+    "Send" : {
+
+    },
+    "Send voice message" : {
+
+    },
+    "Sent" : {
+
+    },
+    "Serif" : {
+
+    },
+    "Server" : {
+
+    },
+    "Server has no push support" : {
+
+    },
+    "Session" : {
+
+    },
+    "Set" : {
+
+    },
+    "Settings" : {
+
+    },
+    "Share" : {
+
+    },
+    "Share Contact" : {
+
+    },
+    "Share Link" : {
+
+    },
+    "Show My QR Code" : {
+
+    },
+    "Show Verification Code" : {
+
+    },
+    "Shown to contacts who share status with you, on every account." : {
+
+    },
+    "Shows their address" : {
+
+    },
+    "Sign In" : {
+
+    },
+    "Sign in with an account on any XMPP server." : {
+
+    },
+    "Signs out and deletes this account's messages from this device. The account itself and its server history are kept." : {
+
+    },
+    "Someone" : {
+
+    },
+    "Start a chat with one of your contacts." : {
+
+    },
+    "Status" : {
+
+    },
+    "Status message" : {
+
+    },
+    "Status sharing" : {
+
+    },
+    "Storage" : {
+
+    },
+    "Stream Probe" : {
+
+    },
+    "Subject" : {
+
+    },
+    "System" : {
+
+    },
+    "Text (Dark)" : {
+
+    },
+    "Text (Light)" : {
+
+    },
+    "That code has no encryption fingerprints." : {
+
+    },
+    "That code is for %@, not %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "That code is for %1$@, not %2$@."
+          }
+        }
+      }
+    },
+    "The accent colours buttons and your messages. Background and text apply to every screen, in light and dark mode." : {
+
+    },
+    "The account is not connected." : {
+
+    },
+    "The fingerprints don’t match for %lld device(s). Nothing was verified for those: the code may be old, or someone may be intercepting your messages." : {
+
+    },
+    "The server presented a certificate this device does not trust. Only trust it if you know it belongs to your server." : {
+
+    },
+    "The server's certificate is not trusted by this device. Only continue if you know the server uses this certificate:\n\n%@" : {
+
+    },
+    "They see your status; you don't see theirs" : {
+
+    },
+    "They will be asked to share their status with you, and will see yours." : {
+
+    },
+    "This Device’s Fingerprint" : {
+
+    },
+    "This room keeps members’ addresses hidden." : {
+
+    },
+    "Transferring" : {
+
+    },
+    "Trust This Certificate" : {
+
+    },
+    "Trust Without Verifying" : {
+
+    },
+    "Trust and Continue" : {
+
+    },
+    "Trust options" : {
+
+    },
+    "Trusted, not verified" : {
+
+    },
+    "Try Again" : {
+
+    },
+    "Unblock" : {
+
+    },
+    "Unmute" : {
+
+    },
+    "Untrusted Certificate" : {
+
+    },
+    "Up to" : {
+
+    },
+    "Verification" : {
+
+    },
+    "Verification Code" : {
+
+    },
+    "Verified" : {
+
+    },
+    "Verified %lld device(s)." : {
+
+    },
+    "Version" : {
+
+    },
+    "Video" : {
+
+    },
+    "View Contact" : {
+
+    },
+    "Visitor" : {
+
+    },
+    "Voice message" : {
+
+    },
+    "Waiting for them to accept" : {
+
+    },
+    "Waiting to send" : {
+
+    },
+    "Wants to see your status" : {
+
+    },
+    "Welcome to Hrafn" : {
+
+    },
+    "Hrafn can't use the microphone. Allow it in Settings to record voice messages." : {
+
+    },
+    "Hrafn · Stream probe" : {
+
+    },
+    "XML Console" : {
+
+    },
+    "XML console" : {
+
+    },
+    "You" : {
+
+    },
+    "You have no voice in this room" : {
+
+    },
+    "You see each other's status" : {
+
+    },
+    "You see their status; they don't see yours" : {
+
+    },
+    "You will stop sharing status with each other. Your conversation stays." : {
+
+    },
+    "You won't receive messages or status from this contact." : {
+
+    },
+    "You: " : {
+
+    },
+    "Your other devices will leave too." : {
+
+    },
+    "^[%lld new device](inflect: true) not trusted yet. Messages aren’t encrypted for it until you decide." : {
+
+    },
+    "edited" : {
+
+    },
+    "example.com" : {
+
+    },
+    "name@example.com" : {
+
+    },
+    "room@conference.example.com" : {
+
+    },
+    "stopped typing" : {
+
+    },
+    "typing…" : {
+
+    },
+    "you@example.com" : {
+
+    },
+    "« received" : {
+
+    },
+    "» sent" : {
+
+    }
+  },
+  "version" : "1.0"
+}

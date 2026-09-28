@@ -1,0 +1,142 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Nightly: the randomized tests at 200 times their pull-request counts.
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  xmppkit:
+    name: XMPPKit (build, test, fuzz)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        run: swift --version
+
+      - name: Build
+        working-directory: Packages/XMPPKit
+        run: swift build -v
+
+      - name: Test
+        working-directory: Packages/XMPPKit
+        # The parser, SCRAM and JID fuzz tests run here; they are ordinary tests
+        # with randomized input, so they gate every pull request.
+        run: swift test --parallel
+
+      - name: Warnings must not accumulate
+        working-directory: Packages/XMPPKit
+        run: |
+          swift build -Xswiftc -warnings-as-errors 2>&1 | tee build.log
+          ! grep -q "warning:" build.log
+
+  fuzz:
+    name: Fuzz (nightly)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Randomized tests, long run
+        working-directory: Packages/XMPPKit
+        # Parser, serializer round trip, SCRAM, JID/PRECIS, Punycode, xmpp: URIs,
+        # certificate DER, message styling. Each test prints its seed; rerun a
+        # failure with HRAFN_FUZZ_SEED=<seed>.
+        env:
+          HRAFN_FUZZ_SCALE: "200"
+        run: |
+          swift test -c release --filter 'survives|serializedRandom|fuzzed|parsedAddresses|punycodeDecoding|arbitraryLinks|truncatedAndMutated' 2>&1 | tee fuzz.log
+      - name: Keep the log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-log
+          path: Packages/XMPPKit/fuzz.log
+
+  omemokit:
+    name: OMEMOKit (crypto)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test
+        working-directory: Packages/OMEMOKit
+        # XEdDSA against two Ed25519 verifiers, the ratchet, the 0.3 wire format.
+        run: swift test --parallel
+
+      - name: Warnings must not accumulate
+        working-directory: Packages/OMEMOKit
+        run: |
+          swift build --build-tests -Xswiftc -warnings-as-errors 2>&1 | tee build.log
+          ! grep -q "warning:" build.log
+
+  hrafnkit:
+    name: HrafnKit (store, services)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test
+        working-directory: Packages/HrafnKit
+        # The ingest/dedup logic and the store run against in-memory SQLite;
+        # the live session tests skip without HRAFN_INTEGRATION.
+        run: swift test --parallel
+
+      - name: Warnings must not accumulate
+        working-directory: Packages/HrafnKit
+        run: |
+          swift build -Xswiftc -warnings-as-errors 2>&1 | tee build.log
+          ! grep -q "warning:" build.log
+
+  app:
+    name: Hrafn app
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build for simulator
+        # Uses the runner's default Xcode; the project needs Xcode 16 or newer
+        # (pbxproj objectVersion 77, Swift 6 language mode).
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project Hrafn.xcodeproj \
+            -scheme Hrafn \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            CODE_SIGNING_ALLOWED=NO
+      - name: String catalogs up to date
+        # Every user-facing string in the catalogs, so translators see it.
+        run: ./scripts/sync-strings.sh --check
+
+  licences:
+    name: Licence audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Audit dependencies and sources
+        run: ./scripts/license-audit.sh
+
+  integration:
+    name: Integration (Prosody + ejabberd)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate certificates
+        run: ./scripts/gen-certs.sh
+      - name: Start servers
+        run: docker compose -f docker/docker-compose.yml up -d --wait
+      - name: Create accounts
+        run: ./scripts/dev-accounts.sh
+      - name: Server reachability
+        run: |
+          ./scripts/check-servers.sh
+      - name: Server logs on failure
+        if: failure()
+        run: docker compose -f docker/docker-compose.yml logs

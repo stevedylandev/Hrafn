@@ -1,0 +1,21 @@
+# Swift / SwiftPM
+.build/
+.swiftpm/
+*.xcworkspace/xcuserdata/
+DerivedData/
+
+# Xcode
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+
+# Test-server material: generated locally, never shared
+docker/certs/
+!docker/certs/.gitkeep
+
+# macOS
+.DS_Store
+
+# fpush secrets
+docker/fpush/settings.json
+docker/fpush/*.p12

@@ -1,0 +1,40 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%@ in %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ in %2$@"
+          }
+        }
+      }
+    },
+    "Message retracted" : {
+
+    },
+    "Removed by %@" : {
+
+    },
+    "Removed by a moderator" : {
+
+    },
+    "🎤 Voice message" : {
+
+    },
+    "🎥 Video" : {
+
+    },
+    "🎵 %@" : {
+
+    },
+    "📎 %@" : {
+
+    },
+    "📷 Photo" : {
+
+    }
+  },
+  "version" : "1.0"
+}
