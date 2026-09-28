@@ -48,21 +48,24 @@ struct JoinRoomView: View {
     var body: some View {
         NavigationStack {
             Form {
-                AccountPicker(accountID: $accountID)
-                Section {
-                    TextField("room@conference.example.com", text: $room)
-                        .keyboardType(.emailAddress)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .accessibilityIdentifier("joinRoom.address")
-                } header: {
-                    Text("Address")
+                Group {
+                    AccountPicker(accountID: $accountID)
+                    Section {
+                        TextField("room@conference.example.com", text: $room)
+                            .keyboardType(.emailAddress)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .accessibilityIdentifier("joinRoom.address")
+                    } header: {
+                        Text("Address")
+                    }
+                    Section {
+                        TextField("Nickname (optional)", text: $nick)
+                            .textInputAutocapitalization(.never)
+                        SecureField("Password (if the room has one)", text: $password)
+                    }
                 }
-                Section {
-                    TextField("Nickname (optional)", text: $nick)
-                        .textInputAutocapitalization(.never)
-                    SecureField("Password (if the room has one)", text: $password)
-                }
+                .themedCells()
             }
             .themed()
             .navigationTitle("Join Group Chat")
@@ -121,22 +124,25 @@ struct CreateRoomView: View {
     var body: some View {
         NavigationStack {
             Form {
-                AccountPicker(accountID: $accountID)
-                Section {
-                    TextField("Name", text: $name)
-                        .accessibilityIdentifier("createRoom.name")
-                }
-                Section {
-                    Picker("Kind", selection: $kind) {
-                        Text("Private Group").tag(RoomKind.privateGroup)
-                        Text("Public Channel").tag(RoomKind.channel)
+                Group {
+                    AccountPicker(accountID: $accountID)
+                    Section {
+                        TextField("Name", text: $name)
+                            .accessibilityIdentifier("createRoom.name")
                     }
-                    .pickerStyle(.segmented)
-                } footer: {
-                    Text(kind == .privateGroup
-                         ? "Only people you invite can join, and members see each other's addresses."
-                         : "Anyone can find and join the channel. Addresses are only visible to moderators.")
+                    Section {
+                        Picker("Kind", selection: $kind) {
+                            Text("Private Group").tag(RoomKind.privateGroup)
+                            Text("Public Channel").tag(RoomKind.channel)
+                        }
+                        .pickerStyle(.segmented)
+                    } footer: {
+                        Text(kind == .privateGroup
+                             ? "Only people you invite can join, and members see each other's addresses."
+                             : "Anyone can find and join the channel. Addresses are only visible to moderators.")
+                    }
                 }
+                .themedCells()
             }
             .themed()
             .navigationTitle("New Group")
@@ -263,80 +269,83 @@ struct RoomDetailView: View {
 
     var body: some View {
         List {
-            Section {
-                VStack(spacing: 8) {
-                    Avatar(name: room?.displayName ?? jid, size: 80, isGroup: true)
-                    Text(room?.displayName ?? jid).font(.title2.bold())
-                    Text(jid).font(.footnote).foregroundStyle(.secondary).textSelection(.enabled)
-                    Text(status.summary).font(.footnote).foregroundStyle(.secondary)
+            Group {
+                Section {
+                    VStack(spacing: 8) {
+                        Avatar(name: room?.displayName ?? jid, size: 80, isGroup: true)
+                        Text(room?.displayName ?? jid).font(.title2.bold())
+                        Text(jid).font(.footnote).foregroundStyle(.secondary).textSelection(.enabled)
+                        Text(status.summary).font(.footnote).foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .listRowBackground(Color.clear)
                 }
-                .frame(maxWidth: .infinity)
-                .listRowBackground(Color.clear)
-            }
 
-            Section("Subject") {
-                Text(room?.subject ?? "No subject").foregroundStyle(room?.subject == nil ? .secondary : .primary)
+                Section("Subject") {
+                    Text(room?.subject ?? "No subject").foregroundStyle(room?.subject == nil ? .secondary : .primary)
+                    if status.isJoined {
+                        Button("Change Subject") {
+                            newSubject = room?.subject ?? ""
+                            editingSubject = true
+                        }
+                    }
+                }
+
+                Section("Notifications") {
+                    Picker("Notify", selection: Binding(
+                        get: { room?.notify },
+                        set: { level in act { try app.manager.setRoomNotify(accountID: accountID, room: jid, level) } })) {
+                        Text("Default (\(defaultNotify.label))").tag(RoomNotify?.none)
+                        ForEach(RoomNotify.allCases, id: \.self) { Text($0.label).tag(RoomNotify?.some($0)) }
+                    }
+                    .accessibilityIdentifier("room.notify")
+                }
+
+                Section("You") {
+                    LabeledContent("Nickname", value: status.nick ?? room?.nick ?? "—")
+                    if status.isJoined {
+                        LabeledContent("Role", value: status.role.label)
+                        LabeledContent("Affiliation", value: status.affiliation.label)
+                        Button("Change Nickname") {
+                            newNick = status.nick ?? ""
+                            editingNick = true
+                        }
+                    }
+                }
+
                 if status.isJoined {
-                    Button("Change Subject") {
-                        newSubject = room?.subject ?? ""
-                        editingSubject = true
+                    Section("Participants (\(status.occupants.count))") {
+                        ForEach(status.occupants) { occupant in
+                            OccupantRow(occupant: occupant, image: occupantAvatar(occupant))
+                                .contextMenu { moderation(for: occupant) }
+                        }
+                    }
+                }
+
+                Section {
+                    if status.isJoined {
+                        Button { showingInvite = true } label: { Label("Invite…", systemImage: "person.badge.plus") }
+                    }
+                    if status.isOwner {
+                        Button { showingConfig = true } label: { Label("Configure…", systemImage: "gearshape") }
+                    }
+                    if case .notJoined = status.state {
+                        Button {
+                            act { try await session?.rejoinRoom(jid) }
+                        } label: { Label("Join Again", systemImage: "arrow.clockwise") }
+                    }
+                    Button(role: .destructive) { confirmingLeave = true } label: {
+                        Label("Leave", systemImage: "rectangle.portrait.and.arrow.right")
+                    }
+                    .accessibilityIdentifier("room.leave")
+                    if status.isOwner {
+                        Button(role: .destructive) { confirmingDestroy = true } label: {
+                            Label("Destroy Room", systemImage: "trash")
+                        }
                     }
                 }
             }
-
-            Section("Notifications") {
-                Picker("Notify", selection: Binding(
-                    get: { room?.notify },
-                    set: { level in act { try app.manager.setRoomNotify(accountID: accountID, room: jid, level) } })) {
-                    Text("Default (\(defaultNotify.label))").tag(RoomNotify?.none)
-                    ForEach(RoomNotify.allCases, id: \.self) { Text($0.label).tag(RoomNotify?.some($0)) }
-                }
-                .accessibilityIdentifier("room.notify")
-            }
-
-            Section("You") {
-                LabeledContent("Nickname", value: status.nick ?? room?.nick ?? "—")
-                if status.isJoined {
-                    LabeledContent("Role", value: status.role.label)
-                    LabeledContent("Affiliation", value: status.affiliation.label)
-                    Button("Change Nickname") {
-                        newNick = status.nick ?? ""
-                        editingNick = true
-                    }
-                }
-            }
-
-            if status.isJoined {
-                Section("Participants (\(status.occupants.count))") {
-                    ForEach(status.occupants) { occupant in
-                        OccupantRow(occupant: occupant, image: occupantAvatar(occupant))
-                            .contextMenu { moderation(for: occupant) }
-                    }
-                }
-            }
-
-            Section {
-                if status.isJoined {
-                    Button { showingInvite = true } label: { Label("Invite…", systemImage: "person.badge.plus") }
-                }
-                if status.isOwner {
-                    Button { showingConfig = true } label: { Label("Configure…", systemImage: "gearshape") }
-                }
-                if case .notJoined = status.state {
-                    Button {
-                        act { try await session?.rejoinRoom(jid) }
-                    } label: { Label("Join Again", systemImage: "arrow.clockwise") }
-                }
-                Button(role: .destructive) { confirmingLeave = true } label: {
-                    Label("Leave", systemImage: "rectangle.portrait.and.arrow.right")
-                }
-                .accessibilityIdentifier("room.leave")
-                if status.isOwner {
-                    Button(role: .destructive) { confirmingDestroy = true } label: {
-                        Label("Destroy Room", systemImage: "trash")
-                    }
-                }
-            }
+            .themedCells()
         }
         .themed()
         .navigationTitle("Group Info")
@@ -388,7 +397,7 @@ struct RoomDetailView: View {
         .sheet(isPresented: Binding(get: { devicesOf != nil }, set: { if !$0 { devicesOf = nil } })) {
             if let member = devicesOf {
                 NavigationStack {
-                    List { EncryptionDevicesSection(accountID: accountID, jid: member, title: "Encryption") }
+                    List { EncryptionDevicesSection(accountID: accountID, jid: member, title: "Encryption").themedCells() }
                         .themed()
                         .navigationTitle(member)
                         .navigationBarTitleDisplayMode(.inline)
@@ -488,29 +497,32 @@ struct InviteContactView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section {
-                    TextField("name@example.com", text: $address)
-                        .keyboardType(.emailAddress)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                    TextField("Message (optional)", text: $reason)
-                    Button("Invite") { invite(address) }
-                        .disabled(!address.contains("@"))
-                } header: {
-                    Text("Address")
-                }
-                Section("Contacts") {
-                    ForEach(contacts.filter(\.inRoster), id: \.jid) { contact in
-                        Button {
-                            invite(contact.jid)
-                        } label: {
-                            HStack {
-                                Avatar(name: contact.displayName, size: 32, colorKey: contact.jid)
-                                Text(contact.displayName).foregroundStyle(.primary)
+                Group {
+                    Section {
+                        TextField("name@example.com", text: $address)
+                            .keyboardType(.emailAddress)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                        TextField("Message (optional)", text: $reason)
+                        Button("Invite") { invite(address) }
+                            .disabled(!address.contains("@"))
+                    } header: {
+                        Text("Address")
+                    }
+                    Section("Contacts") {
+                        ForEach(contacts.filter(\.inRoster), id: \.jid) { contact in
+                            Button {
+                                invite(contact.jid)
+                            } label: {
+                                HStack {
+                                    Avatar(name: contact.displayName, size: 32, colorKey: contact.jid)
+                                    Text(contact.displayName).foregroundStyle(.primary)
+                                }
                             }
                         }
                     }
                 }
+                .themedCells()
             }
             .themed()
             .navigationTitle("Invite")
@@ -553,19 +565,22 @@ struct RoomConfigView: View {
         Group {
             if let form {
                 Form {
-                    if let title = form.title { Section { Text(title).font(.headline) } }
-                    ForEach(sections(of: form), id: \.first) { indices in
-                        Section {
-                            ForEach(indices.dropFirst(indices.first.map { form.fields[$0].type == "fixed" } == true ? 1 : 0),
-                                    id: \.self) { index in
-                                FieldView(field: binding(index))
-                            }
-                        } header: {
-                            if let first = indices.first, form.fields[first].type == "fixed" {
-                                Text(form.fields[first].values.first ?? "")
+                    Group {
+                        if let title = form.title { Section { Text(title).font(.headline) } }
+                        ForEach(sections(of: form), id: \.first) { indices in
+                            Section {
+                                ForEach(indices.dropFirst(indices.first.map { form.fields[$0].type == "fixed" } == true ? 1 : 0),
+                                        id: \.self) { index in
+                                    FieldView(field: binding(index))
+                                }
+                            } header: {
+                                if let first = indices.first, form.fields[first].type == "fixed" {
+                                    Text(form.fields[first].values.first ?? "")
+                                }
                             }
                         }
                     }
+                    .themedCells()
                 }
                 .themed()
             } else {

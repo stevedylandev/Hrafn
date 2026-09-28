@@ -205,26 +205,29 @@ struct AddContactView: View {
     var body: some View {
         NavigationStack {
             Form {
-                if app.manager.accounts.count > 1 {
-                    Picker("Account", selection: $accountID) {
-                        ForEach(app.manager.accounts) { Text($0.jid).tag($0.id) }
+                Group {
+                    if app.manager.accounts.count > 1 {
+                        Picker("Account", selection: $accountID) {
+                            ForEach(app.manager.accounts) { Text($0.jid).tag($0.id) }
+                        }
+                    }
+                    Section {
+                        TextField("name@example.com", text: $address)
+                            .keyboardType(.emailAddress)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .accessibilityIdentifier("addContact.address")
+                        TextField("Name (optional)", text: $name)
+                            .accessibilityIdentifier("addContact.name")
+                        Button { showingScanner = true } label: { Label("Scan QR Code", systemImage: "qrcode.viewfinder") }
+                    } footer: {
+                        Text("They will be asked to share their status with you, and will see yours.")
+                    }
+                    if let errorMessage {
+                        Section { Text(errorMessage).foregroundStyle(.red) }
                     }
                 }
-                Section {
-                    TextField("name@example.com", text: $address)
-                        .keyboardType(.emailAddress)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .accessibilityIdentifier("addContact.address")
-                    TextField("Name (optional)", text: $name)
-                        .accessibilityIdentifier("addContact.name")
-                    Button { showingScanner = true } label: { Label("Scan QR Code", systemImage: "qrcode.viewfinder") }
-                } footer: {
-                    Text("They will be asked to share their status with you, and will see yours.")
-                }
-                if let errorMessage {
-                    Section { Text(errorMessage).foregroundStyle(.red) }
-                }
+                .themedCells()
             }
             .themed()
             .navigationTitle("Add Contact")

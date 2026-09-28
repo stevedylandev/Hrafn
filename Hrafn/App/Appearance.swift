@@ -1,9 +1,9 @@
 import SwiftUI
 import UIKit
 
-/// How the app looks: light or dark, the accent, the font, and the
-/// background and text colours. Kept in the App Group's defaults, like the
-/// media policy.
+/// How the app looks: light or dark, the accent, the font, and a base16
+/// theme for each of light and dark mode. Kept in the App Group's defaults,
+/// like the media policy.
 struct Appearance: Codable, Hashable {
     enum Mode: String, Codable, CaseIterable, Identifiable {
         case automatic, light, dark
@@ -53,60 +53,120 @@ struct Appearance: Codable, Hashable {
 
     var mode: Mode = .automatic
     var font: FontStyle = .system
-    /// Hex colours; `nil` keeps the system's.
+    /// Hex colour; `nil` takes the theme's, or the system's.
     var accentHex: String?
-    var lightBackgroundHex: String?
-    var darkBackgroundHex: String?
-    var lightTextHex: String?
-    var darkTextHex: String?
+    /// Base16 schemes by id, for light and dark mode; `nil` keeps the system's.
+    var lightTheme: String?
+    var darkTheme: String?
+    /// Schemes the user made or imported.
+    var customSchemes: [Base16Scheme]?
 
     var accent: Color? { accentHex.flatMap(Color.init(hex:)) }
 
-    /// The background for a colour scheme, when one was chosen.
-    func background(for scheme: ColorScheme) -> Color? {
-        (scheme == .dark ? darkBackgroundHex : lightBackgroundHex).flatMap(Color.init(hex:))
+    var schemes: [Base16Scheme] { Base16Scheme.presets + (customSchemes ?? []) }
+
+    func scheme(id: String?) -> Base16Scheme? {
+        id.flatMap { id in schemes.first { $0.id == id } }
     }
 
-    /// The text colour for a colour scheme, when one was chosen.
-    func text(for scheme: ColorScheme) -> Color? {
-        (scheme == .dark ? darkTextHex : lightTextHex).flatMap(Color.init(hex:))
+    /// The colours for a colour scheme, when a theme was chosen for it.
+    func palette(for colorScheme: ColorScheme) -> Palette? {
+        scheme(id: colorScheme == .dark ? darkTheme : lightTheme).map(Palette.init)
     }
 
     var isDefault: Bool { self == Appearance() }
 }
 
-/// Puts the chosen background behind a screen's list, form or scroll view,
-/// and the chosen text colour on its text. Without choices, the system's.
-private struct Themed: ViewModifier {
-    @Environment(AppModel.self) private var app
+/// Puts the palette in the environment and tints with its accent, for the
+/// colour scheme in effect.
+struct AppTheme: ViewModifier {
+    let appearance: Appearance
     @Environment(\.colorScheme) private var colorScheme
 
     func body(content: Content) -> some View {
-        let background = app.appearance.background(for: colorScheme)
+        let palette = appearance.palette(for: colorScheme)
+        let accent = appearance.accent ?? palette?.accent
         content
-            .scrollContentBackground(background == nil ? .automatic : .hidden)
-            .background { (background ?? .clear).ignoresSafeArea() }
-            .foregroundStyle(app.appearance.text(for: colorScheme).map(AnyShapeStyle.init) ?? AnyShapeStyle(.primary))
+            .environment(\.palette, palette)
+            .environment(\.onAccent, accent.flatMap { palette?.onAccent($0) } ?? .white)
+            .tint(accent)
     }
 }
 
-/// A list row on the chosen background, so plain lists don't keep the
-/// system's cell colour behind their rows.
-private struct ThemedRow: ViewModifier {
-    @Environment(AppModel.self) private var app
-    @Environment(\.colorScheme) private var colorScheme
+/// Puts the theme's background behind a screen's list, form or scroll view,
+/// and its text colour on its text. Without a theme, the system's.
+private struct Themed: ViewModifier {
+    @Environment(\.palette) private var palette
 
     func body(content: Content) -> some View {
-        content.listRowBackground(app.appearance.background(for: colorScheme))
+        content
+            .scrollContentBackground(palette == nil ? .automatic : .hidden)
+            .background { (palette?.background ?? .clear).ignoresSafeArea() }
+            .foregroundStyle(palette.map { AnyShapeStyle($0.text) } ?? AnyShapeStyle(.primary))
+    }
+}
+
+/// A plain list row on the theme's background, so plain lists don't keep
+/// the system's cell colour behind their rows.
+private struct ThemedRow: ViewModifier {
+    @Environment(\.palette) private var palette
+
+    func body(content: Content) -> some View {
+        content.listRowBackground(palette?.background)
+    }
+}
+
+/// Grouped form cells on the theme's surface colour. On a `Group` of
+/// sections, it reaches every row.
+private struct ThemedCells: ViewModifier {
+    @Environment(\.palette) private var palette
+
+    func body(content: Content) -> some View {
+        content.listRowBackground(palette?.surface)
+    }
+}
+
+/// The theme's surface, or the system's colour when there is no theme.
+struct ThemedFill: ShapeStyle {
+    enum Level { case surface, raised }
+    var level: Level = .surface
+
+    func resolve(in environment: EnvironmentValues) -> Color.Resolved {
+        if let palette = environment.palette {
+            return (level == .surface ? palette.surface : palette.raised).resolve(in: environment)
+        }
+        let system = level == .surface ? UIColor.secondarySystemBackground : .tertiarySystemBackground
+        return Color(system).resolve(in: environment)
+    }
+}
+
+/// Bars over content (composer, banners): the theme's surface, or the
+/// system's bar material.
+private struct ThemedBar: ViewModifier {
+    @Environment(\.palette) private var palette
+
+    func body(content: Content) -> some View {
+        if let palette {
+            content.background(palette.surface)
+        } else {
+            content.background(.bar)
+        }
     }
 }
 
 extension View {
     func themed() -> some View { modifier(Themed()) }
     func themedRow() -> some View { modifier(ThemedRow()) }
+    func themedCells() -> some View { modifier(ThemedCells()) }
+    func themedBar() -> some View { modifier(ThemedBar()) }
 }
 
-extension Color {
+extension ShapeStyle where Self == ThemedFill {
+    static var surface: ThemedFill { ThemedFill(level: .surface) }
+    static var raised: ThemedFill { ThemedFill(level: .raised) }
+}
+
+nonisolated extension Color {
     init?(hex: String) {
         let digits = hex.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: "#", with: "")
         guard digits.count == 6, let rgb = UInt64(digits, radix: 16) else { return nil }

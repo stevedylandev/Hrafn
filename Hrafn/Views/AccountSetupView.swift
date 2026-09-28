@@ -21,74 +21,77 @@ struct AccountSetupView: View {
 
     var body: some View {
         Form {
-            if isOnboarding {
-                Section {
-                    VStack(spacing: 12) {
-                        Image("Hrafn")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 140, height: 140)
-                            .foregroundStyle(.primary)
-                            .accessibilityHidden(true)
-                        Text("Welcome to Hrafn")
-                            .font(.title.bold())
-                        Text("Sign in with an account on any XMPP server.")
-                            .foregroundStyle(.secondary)
+            Group {
+                if isOnboarding {
+                    Section {
+                        VStack(spacing: 12) {
+                            Image("Hrafn")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 140, height: 140)
+                                .foregroundStyle(.primary)
+                                .accessibilityHidden(true)
+                            Text("Welcome to Hrafn")
+                                .font(.title.bold())
+                            Text("Sign in with an account on any XMPP server.")
+                                .foregroundStyle(.secondary)
+                        }
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
                     }
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
                 }
-            }
 
-            Section("Account") {
-                TextField("you@example.com", text: $address)
-                    .accessibilityIdentifier("setup.address")
-                    .textContentType(.username)
-                    .keyboardType(.emailAddress)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                SecureField("Password", text: $password)
-                    .accessibilityIdentifier("setup.password")
-                    .textContentType(.password)
-            }
-
-            Section {
-                DisclosureGroup("Connection settings", isExpanded: $showAdvanced) {
-                    TextField("Host (default: DNS lookup)", text: $host)
-                        .accessibilityIdentifier("setup.host")
+                Section("Account") {
+                    TextField("you@example.com", text: $address)
+                        .accessibilityIdentifier("setup.address")
+                        .textContentType(.username)
+                        .keyboardType(.emailAddress)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                        .keyboardType(.URL)
-                    TextField("Port", text: $port)
-                        .keyboardType(.numberPad)
-                        .accessibilityIdentifier("setup.port")
-                    Toggle("Direct TLS", isOn: $directTLS)
+                    SecureField("Password", text: $password)
+                        .accessibilityIdentifier("setup.password")
+                        .textContentType(.password)
                 }
-            } footer: {
-                Text("Only needed when the server's DNS records are missing or you connect to a local test server.")
-            }
 
-            if let errorMessage {
                 Section {
-                    Label(errorMessage, systemImage: "exclamationmark.triangle")
-                        .foregroundStyle(.red)
+                    DisclosureGroup("Connection settings", isExpanded: $showAdvanced) {
+                        TextField("Host (default: DNS lookup)", text: $host)
+                            .accessibilityIdentifier("setup.host")
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .keyboardType(.URL)
+                        TextField("Port", text: $port)
+                            .keyboardType(.numberPad)
+                            .accessibilityIdentifier("setup.port")
+                        Toggle("Direct TLS", isOn: $directTLS)
+                    }
+                } footer: {
+                    Text("Only needed when the server's DNS records are missing or you connect to a local test server.")
                 }
-            }
 
-            Section {
-                Button {
-                    Task { await signIn(trusting: nil) }
-                } label: {
-                    HStack {
-                        Text("Sign In")
-                        Spacer()
-                        if isWorking { ProgressView() }
+                if let errorMessage {
+                    Section {
+                        Label(errorMessage, systemImage: "exclamationmark.triangle")
+                            .foregroundStyle(.red)
                     }
                 }
-                .disabled(!canSubmit || isWorking)
-                .accessibilityIdentifier("setup.signIn")
+
+                Section {
+                    Button {
+                        Task { await signIn(trusting: nil) }
+                    } label: {
+                        HStack {
+                            Text("Sign In")
+                            Spacer()
+                            if isWorking { ProgressView() }
+                        }
+                    }
+                    .disabled(!canSubmit || isWorking)
+                    .accessibilityIdentifier("setup.signIn")
+                }
             }
+            .themedCells()
         }
         .themed()
         .navigationTitle(isOnboarding ? "" : "Add Account")

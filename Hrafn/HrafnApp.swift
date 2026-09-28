@@ -18,9 +18,9 @@ struct HrafnApp: App {
         WindowGroup {
             ContentView()
                 .environment(app)
+                .modifier(AppTheme(appearance: app.appearance))
                 .preferredColorScheme(app.appearance.mode.colorScheme)
                 .fontDesign(app.appearance.font.design)
-                .tint(app.appearance.accent)
                 .task { await app.start() }
                 .task(id: app.manager.accounts.isEmpty) {
                     // UI tests would meet the permission alert mid-flow.

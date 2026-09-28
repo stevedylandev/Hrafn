@@ -196,7 +196,7 @@ struct NewDevicesBanner: View {
             Button("Review", action: review).font(.footnote.weight(.semibold))
         }
         .padding(10)
-        .background(.bar)
+        .themedBar()
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier("encryption.newDevices")
     }

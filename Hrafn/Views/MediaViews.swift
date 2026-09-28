@@ -103,7 +103,7 @@ struct AttachmentView: View {
                 // XEP-0264: the sender's small preview, until the file is here.
                 Image(uiImage: preview).resizable().scaledToFill().blur(radius: 6)
             } else {
-                Rectangle().fill(Color(.tertiarySystemFill))
+                Rectangle().fill(.raised)
                 Image(systemName: attachment.kind == .video ? "video" : "photo")
                     .font(.largeTitle).foregroundStyle(.secondary)
             }
@@ -349,6 +349,7 @@ final class AudioPlayback: NSObject, AVAudioPlayerDelegate {
 }
 
 struct AudioMessageView: View {
+    @Environment(\.onAccent) private var onAccent
     let attachment: Attachment
     let url: URL?
     let isOutgoing: Bool
@@ -380,7 +381,7 @@ struct AudioMessageView: View {
             .accessibilityIdentifier("attachment.audio")
             VStack(alignment: .leading, spacing: 4) {
                 ProgressView(value: isCurrent ? min(playback.elapsed, total) : 0, total: max(total, 0.1))
-                    .tint(isOutgoing ? .white : .accentColor)
+                    .tint(isOutgoing ? onAccent : .accentColor)
                 Text(label).font(.caption.monospacedDigit()).opacity(0.8)
             }
             .frame(width: 140)

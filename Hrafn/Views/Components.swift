@@ -6,11 +6,15 @@ import XMPPIM
 /// A contact's or room's picture: their avatar when we have it, else
 /// initials on their XEP-0392 colour.
 struct Avatar: View {
+    @Environment(\.palette) private var palette
     let name: String
     var size: CGFloat = 44
     var availability: ContactAvailability?
-    /// A room: a group symbol instead of initials.
+    /// A room: a group symbol instead of initials, and a group badge on
+    /// its own picture.
     var isGroup = false
+    /// A symbol instead of initials, such as for notes to self.
+    var symbol: String?
     /// The avatar image on disk (`AppModel.avatarURL`).
     var image: URL?
     /// What the colour is derived from: the bare JID for contacts, the
@@ -28,8 +32,8 @@ struct Avatar: View {
                         .scaledToFill()
                         .frame(width: size, height: size)
                         .clipShape(Circle())
-                } else if isGroup {
-                    Image(systemName: "person.3.fill")
+                } else if let symbol = symbol ?? (isGroup ? "person.3.fill" : nil) {
+                    Image(systemName: symbol)
                         .font(.system(size: size * 0.32, weight: .semibold))
                         .foregroundStyle(.white)
                 } else {
@@ -39,11 +43,21 @@ struct Avatar: View {
                 }
             }
             .overlay(alignment: .bottomTrailing) {
-                if let availability, availability != .offline {
+                if isGroup, let image, AvatarImages.image(at: image) != nil {
+                    // The picture alone doesn't say it's a group.
+                    Image(systemName: "person.2.fill")
+                        .font(.system(size: size * 0.16, weight: .bold))
+                        .foregroundStyle(.white)
+                        .frame(width: size * 0.4, height: size * 0.4)
+                        .background(Circle().fill(Self.color(for: colorKey ?? name)))
+                        .overlay(Circle().stroke(palette?.background ?? Color(.systemBackground), lineWidth: 2))
+                        .offset(x: size * 0.06, y: size * 0.06)
+                        .accessibilityHidden(true)
+                } else if let availability, availability != .offline {
                     Circle()
                         .fill(availability.color)
                         .frame(width: size * 0.28, height: size * 0.28)
-                        .overlay(Circle().stroke(Color(.systemBackground), lineWidth: 2))
+                        .overlay(Circle().stroke(palette?.background ?? Color(.systemBackground), lineWidth: 2))
                 }
             }
             // Only the presence dot says something the name beside it doesn't.
@@ -192,7 +206,7 @@ struct ConnectionBanner: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal)
             .padding(.vertical, 8)
-            .background(.bar)
+            .themedBar()
         }
     }
 }

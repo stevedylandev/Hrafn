@@ -8,6 +8,7 @@ import XMPPIM
 /// code, preformatted blocks and quotes. The directives stay visible, dimmed,
 /// as the XEP intends, so nothing the sender typed disappears.
 struct StyledText: View {
+    @Environment(\.onAccent) private var onAccent
     let text: String
     let isOutgoing: Bool
     var unstyled = false
@@ -16,11 +17,11 @@ struct StyledText: View {
         if unstyled || !text.contains(where: { "*_~`>".contains($0) }) {
             Text(text)
         } else {
-            Text(Self.attributed(text, isOutgoing: isOutgoing))
+            Text(Self.attributed(text, isOutgoing: isOutgoing, onAccent: onAccent))
         }
     }
 
-    static func attributed(_ text: String, isOutgoing: Bool) -> AttributedString {
+    static func attributed(_ text: String, isOutgoing: Bool, onAccent: Color = .white) -> AttributedString {
         var result = AttributedString()
         for run in MessageStyling.parse(text) {
             var piece = AttributedString(run.text)
@@ -33,9 +34,9 @@ struct StyledText: View {
             if !intent.isEmpty { piece.inlinePresentationIntent = intent }
             if style.preformatted { piece.font = .body.monospaced() }
             if style.directive {
-                piece.foregroundColor = isOutgoing ? .white.opacity(0.85) : .secondary
+                piece.foregroundColor = isOutgoing ? onAccent.opacity(0.85) : .secondary
             } else if style.quoteDepth > 0 {
-                piece.foregroundColor = isOutgoing ? .white.opacity(0.8) : .secondary
+                piece.foregroundColor = isOutgoing ? onAccent.opacity(0.8) : .secondary
             }
             result += piece
         }
@@ -48,6 +49,7 @@ struct StyledText: View {
 /// The message a reply answers, above the reply's text: who wrote it and the
 /// start of what they wrote. Tapping it shows the original.
 struct ReplyQuote: View {
+    @Environment(\.onAccent) private var onAccent
     let author: String
     let text: String
     let isOutgoing: Bool
@@ -59,13 +61,13 @@ struct ReplyQuote: View {
         } label: {
             HStack(spacing: 6) {
                 RoundedRectangle(cornerRadius: 1.5)
-                    .fill(isOutgoing ? AnyShapeStyle(.white.opacity(0.7)) : AnyShapeStyle(.tint))
+                    .fill(isOutgoing ? AnyShapeStyle(onAccent.opacity(0.7)) : AnyShapeStyle(.tint))
                     .frame(width: 3)
                 VStack(alignment: .leading, spacing: 1) {
                     Text(author).font(.caption.bold())
                     StyledText(text: text, isOutgoing: isOutgoing).font(.caption).lineLimit(2)
                 }
-                .foregroundStyle(isOutgoing ? AnyShapeStyle(.white.opacity(0.85)) : AnyShapeStyle(.secondary))
+                .foregroundStyle(isOutgoing ? AnyShapeStyle(onAccent.opacity(0.85)) : AnyShapeStyle(.secondary))
                 .multilineTextAlignment(.leading)
             }
             .fixedSize(horizontal: false, vertical: true)
@@ -100,7 +102,7 @@ struct ReactionBar: View {
                     .padding(.vertical, 3)
                     .background(
                         Capsule().fill(reaction.includesMe ? AnyShapeStyle(.tint.opacity(0.2))
-                                       : AnyShapeStyle(Color(.tertiarySystemBackground)))
+                                       : AnyShapeStyle(.raised))
                     )
                     .overlay(Capsule().stroke(reaction.includesMe ? AnyShapeStyle(.tint) : AnyShapeStyle(.separator),
                                               lineWidth: 1))

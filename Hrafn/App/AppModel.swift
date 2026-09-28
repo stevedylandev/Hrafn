@@ -247,6 +247,13 @@ final class AppModel {
         }
     }
 
+    /// A conversation with the account's own address: notes to self, and
+    /// what other devices of this account sent there.
+    func isSelf(accountID: String, peer: String) -> Bool {
+        guard let jid = manager.accounts.first(where: { $0.id == accountID })?.jid else { return false }
+        return jid.caseInsensitiveCompare(peer) == .orderedSame
+    }
+
     func accountLabel(_ accountID: String) -> String? {
         guard manager.accounts.count > 1 else { return nil }
         return manager.accounts.first { $0.id == accountID }?.jid

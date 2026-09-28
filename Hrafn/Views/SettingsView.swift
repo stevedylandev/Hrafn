@@ -7,6 +7,7 @@ import XMPPIM
 
 struct SettingsView: View {
     @Environment(AppModel.self) private var app
+    @Environment(\.palette) private var palette
     @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var showingAddAccount = false
     @State private var availability: ContactAvailability = .online
@@ -22,7 +23,7 @@ struct SettingsView: View {
             if sizeClass == .regular {
                 // iPad: the settings beside the selected account.
                 NavigationSplitView {
-                    List(selection: $selectedAccount) { sections }
+                    List(selection: $selectedAccount) { sections.themedCells() }
                         .themed()
                         .listStyle(.insetGrouped)
                         .navigationTitle("Settings")
@@ -38,7 +39,7 @@ struct SettingsView: View {
                 }
             } else {
                 NavigationStack {
-                    Form { sections }
+                    Form { sections.themedCells() }
                         .themed()
                         .navigationTitle("Settings")
                         .navigationDestination(for: String.self) { accountID in
@@ -118,23 +119,32 @@ struct SettingsView: View {
             Picker("Font", selection: $app.appearance.font) {
                 ForEach(Appearance.FontStyle.allCases) { Text($0.label).tag($0) }
             }
-            ColorPicker("Accent Color", selection: $app.appearance.accentHex.color(default: .accentColor),
+            NavigationLink {
+                ThemePickerView(colorScheme: .light)
+            } label: {
+                LabeledContent("Light Theme", value: app.appearance.scheme(id: app.appearance.lightTheme)?.name
+                               ?? String(localized: "System"))
+            }
+            .accessibilityIdentifier("settings.lightTheme")
+            NavigationLink {
+                ThemePickerView(colorScheme: .dark)
+            } label: {
+                LabeledContent("Dark Theme", value: app.appearance.scheme(id: app.appearance.darkTheme)?.name
+                               ?? String(localized: "System"))
+            }
+            .accessibilityIdentifier("settings.darkTheme")
+            ColorPicker("Accent Color", selection: $app.appearance.accentHex.color(default: palette?.accent ?? .accentColor),
                         supportsOpacity: false)
-            ColorPicker("Background (Light)",
-                        selection: $app.appearance.lightBackgroundHex.color(default: .white), supportsOpacity: false)
-            ColorPicker("Text (Light)",
-                        selection: $app.appearance.lightTextHex.color(default: .black), supportsOpacity: false)
-            ColorPicker("Background (Dark)",
-                        selection: $app.appearance.darkBackgroundHex.color(default: .black), supportsOpacity: false)
-            ColorPicker("Text (Dark)",
-                        selection: $app.appearance.darkTextHex.color(default: .white), supportsOpacity: false)
+            if app.appearance.accentHex != nil {
+                Button("Use Theme Accent") { app.appearance.accentHex = nil }
+            }
             if !app.appearance.isDefault {
                 Button("Reset Appearance", role: .destructive) { app.appearance = Appearance() }
             }
         } header: {
             Text("Appearance")
         } footer: {
-            Text("The accent colours buttons and your messages. Background and text apply to every screen, in light and dark mode.")
+            Text("Themes are base16 colour schemes, one for light mode and one for dark. The accent colours buttons and your messages.")
         }
 
         if let error = app.storageError {
@@ -308,78 +318,81 @@ struct AccountDetailView: View {
     private func form(_ account: Account) -> some View {
         let status = app.manager.status(for: accountID)
         return Form {
-            ProfileSection(account: account)
+            Group {
+                ProfileSection(account: account)
 
-            Section {
-                LabeledContent("Status") {
-                    Text(account.enabled ? status.connection.label : String(localized: "Disabled")).foregroundStyle(status.connection.color)
-                }
-                if let bound = status.boundJID {
-                    LabeledContent("Session", value: bound)
-                }
-                if let error = status.lastError {
-                    Text(error).font(.caption).foregroundStyle(.orange)
-                }
-                LabeledContent("Notifications") {
-                    Text(status.push.label).accessibilityIdentifier("account.push")
-                }
-                Toggle("Enabled", isOn: Binding(
-                    get: { account.enabled },
-                    set: { enabled in Task { await app.manager.setEnabled(accountID, enabled) } }))
-            }
-
-            if let fingerprint = status.rejectedCertificate {
                 Section {
-                    Text(formatted(fingerprint)).font(.caption.monospaced()).textSelection(.enabled)
-                    Button("Trust This Certificate", role: .destructive) {
-                        Task { await app.manager.trustCertificate(fingerprint, for: accountID) }
+                    LabeledContent("Status") {
+                        Text(account.enabled ? status.connection.label : String(localized: "Disabled")).foregroundStyle(status.connection.color)
                     }
-                } header: {
-                    Text("Untrusted Certificate")
-                } footer: {
-                    Text("The server presented a certificate this device does not trust. Only trust it if you know it belongs to your server.")
+                    if let bound = status.boundJID {
+                        LabeledContent("Session", value: bound)
+                    }
+                    if let error = status.lastError {
+                        Text(error).font(.caption).foregroundStyle(.orange)
+                    }
+                    LabeledContent("Notifications") {
+                        Text(status.push.label).accessibilityIdentifier("account.push")
+                    }
+                    Toggle("Enabled", isOn: Binding(
+                        get: { account.enabled },
+                        set: { enabled in Task { await app.manager.setEnabled(accountID, enabled) } }))
                 }
-            }
 
-            Section {
-                Button { showingQR = true } label: { Label("Show My QR Code", systemImage: "qrcode") }
-            }
-
-            OwnEncryptionSection(accountID: accountID)
-            EncryptionDevicesSection(accountID: accountID, jid: account.jid, title: "My Other Devices", isOwnAccount: true)
-
-            Section("Connection") {
-                TextField("Host (default: DNS lookup)", text: $host)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                TextField("Port", text: $port).keyboardType(.numberPad)
-                Toggle("Direct TLS", isOn: $directTLS)
-                SecureField("New password", text: $password)
-                Button("Save and Reconnect") { Task { await save(account) } }
-            }
-
-            Section("Blocked") {
-                if blocked.isEmpty { Text("Nobody").foregroundStyle(.secondary) }
-                ForEach(blocked, id: \.self) { jid in
-                    HStack {
-                        Text(jid)
-                        Spacer()
-                        Button("Unblock") {
-                            Task {
-                                do { try await app.manager.session(for: accountID)?.setBlocked(jid, false) }
-                                catch { errorMessage = String(describing: error) }
-                            }
+                if let fingerprint = status.rejectedCertificate {
+                    Section {
+                        Text(formatted(fingerprint)).font(.caption.monospaced()).textSelection(.enabled)
+                        Button("Trust This Certificate", role: .destructive) {
+                            Task { await app.manager.trustCertificate(fingerprint, for: accountID) }
                         }
-                        .buttonStyle(.borderless)
+                    } header: {
+                        Text("Untrusted Certificate")
+                    } footer: {
+                        Text("The server presented a certificate this device does not trust. Only trust it if you know it belongs to your server.")
                     }
                 }
-            }
 
-            Section {
-                Button("Remove Account", role: .destructive) { confirmingRemove = true }
-            } footer: {
-                Text("Signs out and deletes this account's messages from this device. The account itself and its server history are kept.")
+                Section {
+                    Button { showingQR = true } label: { Label("Show My QR Code", systemImage: "qrcode") }
+                }
+
+                OwnEncryptionSection(accountID: accountID)
+                EncryptionDevicesSection(accountID: accountID, jid: account.jid, title: "My Other Devices", isOwnAccount: true)
+
+                Section("Connection") {
+                    TextField("Host (default: DNS lookup)", text: $host)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                    TextField("Port", text: $port).keyboardType(.numberPad)
+                    Toggle("Direct TLS", isOn: $directTLS)
+                    SecureField("New password", text: $password)
+                    Button("Save and Reconnect") { Task { await save(account) } }
+                }
+
+                Section("Blocked") {
+                    if blocked.isEmpty { Text("Nobody").foregroundStyle(.secondary) }
+                    ForEach(blocked, id: \.self) { jid in
+                        HStack {
+                            Text(jid)
+                            Spacer()
+                            Button("Unblock") {
+                                Task {
+                                    do { try await app.manager.session(for: accountID)?.setBlocked(jid, false) }
+                                    catch { errorMessage = String(describing: error) }
+                                }
+                            }
+                            .buttonStyle(.borderless)
+                        }
+                    }
+                }
+
+                Section {
+                    Button("Remove Account", role: .destructive) { confirmingRemove = true }
+                } footer: {
+                    Text("Signs out and deletes this account's messages from this device. The account itself and its server history are kept.")
+                }
             }
+            .themedCells()
         }
         .themed()
         .navigationTitle(account.jid)

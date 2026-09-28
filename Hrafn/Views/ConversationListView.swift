@@ -11,6 +11,8 @@ struct ConversationListView: View {
     @State private var showingNewChat = false
     @State private var query = ""
     @State private var found: [StoredMessage] = []
+    /// Accounts whose sections are folded, by id, one per line; kept across launches.
+    @AppStorage("collapsedAccounts") private var collapsedAccounts = ""
 
     var body: some View {
         @Bindable var app = app
@@ -100,19 +102,52 @@ struct ConversationListView: View {
                     .themedRow()
             }
         }
-        ForEach(summaries) { summary in
-            let route = ChatRoute(accountID: summary.conversation.accountID, peer: summary.conversation.peer)
-            NavigationLink(value: route) {
-                ConversationRow(summary: summary)
-            }
-            .tag(route)
-            .swipeActions {
-                Button(summary.isRoom ? "Leave" : "Delete", role: .destructive) {
-                    delete(summary)
+        if app.manager.accounts.count > 1 {
+            // Several accounts: a section each, in the order they were added.
+            ForEach(app.manager.accounts) { account in
+                let chats = summaries.filter { $0.conversation.accountID == account.id }
+                if !chats.isEmpty {
+                    let expanded = !collapsed.contains(account.id)
+                    Section {
+                        if expanded {
+                            ForEach(chats) { conversationLink($0, showsAccount: false) }
+                                .themedRow()
+                        }
+                    } header: {
+                        AccountSectionHeader(jid: account.jid, isExpanded: expanded,
+                                             unread: chats.reduce(0) { $0 + $1.conversation.unreadCount }) {
+                            toggle(account.id)
+                        }
+                    }
                 }
             }
+        } else {
+            ForEach(summaries) { conversationLink($0) }
+                .themedRow()
         }
-        .themedRow()
+    }
+
+    private var collapsed: Set<String> {
+        Set(collapsedAccounts.split(separator: "\n").map(String.init))
+    }
+
+    private func toggle(_ accountID: String) {
+        var ids = collapsed
+        if ids.contains(accountID) { ids.remove(accountID) } else { ids.insert(accountID) }
+        withAnimation { collapsedAccounts = ids.sorted().joined(separator: "\n") }
+    }
+
+    private func conversationLink(_ summary: ConversationSummary, showsAccount: Bool = true) -> some View {
+        let route = ChatRoute(accountID: summary.conversation.accountID, peer: summary.conversation.peer)
+        return NavigationLink(value: route) {
+            ConversationRow(summary: summary, showsAccount: showsAccount)
+        }
+        .tag(route)
+        .swipeActions {
+            Button(summary.isRoom ? "Leave" : "Delete", role: .destructive) {
+                delete(summary)
+            }
+        }
     }
 
     // MARK: Search
@@ -171,6 +206,42 @@ struct ConversationListView: View {
     }
 }
 
+/// An account's section header: tap to fold or unfold its chats. Folded, it
+/// still shows how many messages are unread.
+private struct AccountSectionHeader: View {
+    @Environment(\.onAccent) private var onAccent
+    let jid: String
+    let isExpanded: Bool
+    let unread: Int
+    let toggle: () -> Void
+
+    var body: some View {
+        Button(action: toggle) {
+            HStack {
+                Text(jid).lineLimit(1)
+                Spacer()
+                if !isExpanded, unread > 0 {
+                    Text("\(unread)")
+                        .font(.caption.bold())
+                        .foregroundStyle(onAccent)
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 2)
+                        .background(Capsule().fill(.tint))
+                }
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .rotationEffect(.degrees(isExpanded ? 90 : 0))
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(jid)
+        .accessibilityValue(isExpanded ? String(localized: "Expanded") : String(localized: "Collapsed, \(unread) unread"))
+        .accessibilityHint(isExpanded ? String(localized: "Hides this account's chats") : String(localized: "Shows this account's chats"))
+    }
+}
+
 /// A message found by search: where it is, who wrote it, when.
 private struct SearchResultRow: View {
     @Environment(AppModel.self) private var app
@@ -211,17 +282,25 @@ private struct SearchResultRow: View {
 
 private struct ConversationRow: View {
     @Environment(AppModel.self) private var app
+    @Environment(\.onAccent) private var onAccent
     let summary: ConversationSummary
+    /// Off when the list is already in sections by account.
+    var showsAccount = true
 
     var body: some View {
         let status = app.manager.status(for: summary.conversation.accountID)
         let peer = summary.conversation.peer
+        let isSelf = app.isSelf(accountID: summary.conversation.accountID, peer: peer)
         HStack(spacing: 12) {
-            Avatar(name: summary.title, availability: summary.isRoom ? nil : status.availability(of: peer),
-                   isGroup: summary.isRoom, image: app.avatarURL(summary.profile), colorKey: peer)
+            if isSelf {
+                Avatar(name: summary.title, symbol: "bookmark.fill", colorKey: peer)
+            } else {
+                Avatar(name: summary.title, availability: summary.isRoom ? nil : status.availability(of: peer),
+                       isGroup: summary.isRoom, image: app.avatarURL(summary.profile), colorKey: peer)
+            }
             VStack(alignment: .leading, spacing: 2) {
                 HStack(alignment: .firstTextBaseline) {
-                    Text(summary.title)
+                    Text(isSelf ? String(localized: "Note to Self") : summary.title)
                         .font(.headline)
                         .lineLimit(1)
                     Spacer()
@@ -244,14 +323,14 @@ private struct ConversationRow: View {
                     if summary.conversation.unreadCount > 0 {
                         Text("\(summary.conversation.unreadCount)")
                             .font(.caption.bold())
-                            .foregroundStyle(.white)
+                            .foregroundStyle(onAccent)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
                             .background(Capsule().fill(.tint))
                             .accessibilityLabel("\(summary.conversation.unreadCount) unread")
                     }
                 }
-                if let label = app.accountLabel(summary.conversation.accountID) {
+                if showsAccount, let label = app.accountLabel(summary.conversation.accountID) {
                     Text(label)
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
@@ -308,49 +387,52 @@ struct NewChatView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section {
-                    Button { showingCreate = true } label: { Label("New Group", systemImage: "person.3") }
-                        .accessibilityIdentifier("newChat.createRoom")
-                    Button { showingJoin = true } label: {
-                        Label("Join Group Chat", systemImage: "rectangle.stack.badge.person.crop")
+                Group {
+                    Section {
+                        Button { showingCreate = true } label: { Label("New Group", systemImage: "person.3") }
+                            .accessibilityIdentifier("newChat.createRoom")
+                        Button { showingJoin = true } label: {
+                            Label("Join Group Chat", systemImage: "rectangle.stack.badge.person.crop")
+                        }
+                        .accessibilityIdentifier("newChat.joinRoom")
                     }
-                    .accessibilityIdentifier("newChat.joinRoom")
-                }
-                if app.manager.accounts.count > 1 {
-                    Picker("Account", selection: $accountID) {
-                        ForEach(app.manager.accounts) { Text($0.jid).tag($0.id) }
+                    if app.manager.accounts.count > 1 {
+                        Picker("Account", selection: $accountID) {
+                            ForEach(app.manager.accounts) { Text($0.jid).tag($0.id) }
+                        }
                     }
-                }
-                Section {
-                    TextField("name@example.com", text: $address)
-                        .keyboardType(.emailAddress)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .onSubmit(openTyped)
-                        .accessibilityIdentifier("newChat.address")
-                    Button("Open Chat", action: openTyped)
-                        .accessibilityIdentifier("newChat.open")
-                        .disabled(!address.contains("@"))
-                } header: {
-                    Text("Address")
-                }
-                Section("Contacts") {
-                    ForEach(contacts.filter(\.inRoster), id: \.jid) { contact in
-                        Button {
-                            open(contact.jid)
-                        } label: {
-                            HStack {
-                                Avatar(name: contact.displayName, size: 32, colorKey: contact.jid)
-                                VStack(alignment: .leading) {
-                                    Text(contact.displayName).foregroundStyle(.primary)
-                                    if contact.name != nil {
-                                        Text(contact.jid).font(.caption).foregroundStyle(.secondary)
+                    Section {
+                        TextField("name@example.com", text: $address)
+                            .keyboardType(.emailAddress)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .onSubmit(openTyped)
+                            .accessibilityIdentifier("newChat.address")
+                        Button("Open Chat", action: openTyped)
+                            .accessibilityIdentifier("newChat.open")
+                            .disabled(!address.contains("@"))
+                    } header: {
+                        Text("Address")
+                    }
+                    Section("Contacts") {
+                        ForEach(contacts.filter(\.inRoster), id: \.jid) { contact in
+                            Button {
+                                open(contact.jid)
+                            } label: {
+                                HStack {
+                                    Avatar(name: contact.displayName, size: 32, colorKey: contact.jid)
+                                    VStack(alignment: .leading) {
+                                        Text(contact.displayName).foregroundStyle(.primary)
+                                        if contact.name != nil {
+                                            Text(contact.jid).font(.caption).foregroundStyle(.secondary)
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
+                .themedCells()
             }
             .themed()
             .navigationTitle("New Chat")

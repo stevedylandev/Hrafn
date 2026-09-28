@@ -27,68 +27,71 @@ struct ContactDetailView: View {
     var body: some View {
         let status = app.manager.status(for: accountID)
         Form {
-            Section {
-                VStack(spacing: 8) {
-                    let title = contact?.name ?? profile?.nickname ?? jid
-                    Avatar(name: title, size: 80, availability: status.availability(of: jid),
-                           image: app.avatarURL(profile), colorKey: jid)
-                    Text(title).font(.title2.bold())
-                    if let nick = profile?.nickname, contact?.name != nil, nick != contact?.name {
-                        Text("Calls themselves “\(nick)”").font(.caption).foregroundStyle(.secondary)
+            Group {
+                Section {
+                    VStack(spacing: 8) {
+                        let title = contact?.name ?? profile?.nickname ?? jid
+                        Avatar(name: title, size: 80, availability: status.availability(of: jid),
+                               image: app.avatarURL(profile), colorKey: jid)
+                        Text(title).font(.title2.bold())
+                        if let nick = profile?.nickname, contact?.name != nil, nick != contact?.name {
+                            Text("Calls themselves “\(nick)”").font(.caption).foregroundStyle(.secondary)
+                        }
+                        Text(status.availability(of: jid).label).foregroundStyle(.secondary)
+                        if let message = status.statusMessages[jid] {
+                            Text(message).font(.callout).multilineTextAlignment(.center)
+                        }
                     }
-                    Text(status.availability(of: jid).label).foregroundStyle(.secondary)
-                    if let message = status.statusMessages[jid] {
-                        Text(message).font(.callout).multilineTextAlignment(.center)
-                    }
+                    .frame(maxWidth: .infinity)
+                    .listRowBackground(Color.clear)
                 }
-                .frame(maxWidth: .infinity)
-                .listRowBackground(Color.clear)
-            }
 
-            Section {
-                Button { app.openChat(accountID: accountID, peer: jid) } label: {
-                    Label("Message", systemImage: "bubble.left")
-                }
-                if shareURI != nil {
-                    Button { showingQR = true } label: { Label("Share Contact", systemImage: "qrcode") }
-                }
-            }
-
-            Section("Details") {
-                LabeledContent("Address") {
-                    Text(jid).textSelection(.enabled)
-                }
-                if let contact, contact.inRoster {
-                    TextField("Name", text: $name)
-                        .onSubmit { Task { await rename() } }
-                    LabeledContent("Status sharing", value: contact.subscription.summary)
-                    if contact.pendingOut {
-                        LabeledContent("Request") { Text("Waiting for them to accept") }
+                Section {
+                    Button { app.openChat(accountID: accountID, peer: jid) } label: {
+                        Label("Message", systemImage: "bubble.left")
                     }
-                    if !contact.groups.isEmpty {
-                        LabeledContent("Groups", value: contact.groups.joined(separator: ", "))
+                    if shareURI != nil {
+                        Button { showingQR = true } label: { Label("Share Contact", systemImage: "qrcode") }
                     }
                 }
-            }
 
-            EncryptionDevicesSection(accountID: accountID, jid: jid, title: "Encryption")
-
-            Section {
-                if contact?.inRoster == true {
-                    Button("Remove Contact", role: .destructive) { confirmingRemove = true }
-                } else {
-                    Button("Add to Contacts") {
-                        Task { await run { try await $0.addContact(jid, name: nil) } }
+                Section("Details") {
+                    LabeledContent("Address") {
+                        Text(jid).textSelection(.enabled)
+                    }
+                    if let contact, contact.inRoster {
+                        TextField("Name", text: $name)
+                            .onSubmit { Task { await rename() } }
+                        LabeledContent("Status sharing", value: contact.subscription.summary)
+                        if contact.pendingOut {
+                            LabeledContent("Request") { Text("Waiting for them to accept") }
+                        }
+                        if !contact.groups.isEmpty {
+                            LabeledContent("Groups", value: contact.groups.joined(separator: ", "))
+                        }
                     }
                 }
-                Button(isBlocked ? "Unblock" : "Block", role: isBlocked ? nil : .destructive) {
-                    let block = !isBlocked
-                    Task { await run { try await $0.setBlocked(jid, block) } }
+
+                EncryptionDevicesSection(accountID: accountID, jid: jid, title: "Encryption")
+
+                Section {
+                    if contact?.inRoster == true {
+                        Button("Remove Contact", role: .destructive) { confirmingRemove = true }
+                    } else {
+                        Button("Add to Contacts") {
+                            Task { await run { try await $0.addContact(jid, name: nil) } }
+                        }
+                    }
+                    Button(isBlocked ? "Unblock" : "Block", role: isBlocked ? nil : .destructive) {
+                        let block = !isBlocked
+                        Task { await run { try await $0.setBlocked(jid, block) } }
+                    }
+                } footer: {
+                    Text(isBlocked ? "You won't receive messages or status from this contact."
+                                   : "Blocking stops their messages and hides your status from them.")
                 }
-            } footer: {
-                Text(isBlocked ? "You won't receive messages or status from this contact."
-                               : "Blocking stops their messages and hides your status from them.")
             }
+            .themedCells()
         }
         .themed()
         .navigationTitle(contact?.displayName ?? jid)

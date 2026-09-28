@@ -4,8 +4,20 @@
     "" : {
       "shouldTranslate" : false
     },
+    "« received" : {
+
+    },
+    "» sent" : {
+
+    },
+    "@" : {
+      "shouldTranslate" : false
+    },
     "%@" : {
       "shouldTranslate" : false
+    },
+    "%@ Copy" : {
+
     },
     "%@, %lld" : {
       "comment" : "VoiceOver label of a reaction: the emoji and how many people reacted with it.",
@@ -68,10 +80,10 @@
     "%lld unread" : {
 
     },
-    "5222" : {
-      "shouldTranslate" : false
+    "^[%lld new device](inflect: true) not trusted yet. Messages aren’t encrypted for it until you decide." : {
+
     },
-    "@" : {
+    "5222" : {
       "shouldTranslate" : false
     },
     "Accent Color" : {
@@ -119,6 +131,9 @@
     "Always" : {
 
     },
+    "Any base16 scheme works: copy its YAML file, then paste it here. Custom themes can be used in light and dark mode." : {
+
+    },
     "Anyone can find and join the channel. Addresses are only visible to moderators." : {
 
     },
@@ -137,16 +152,13 @@
     "Away" : {
 
     },
-    "Background (Dark)" : {
-
-    },
-    "Background (Light)" : {
-
-    },
     "Ban" : {
 
     },
     "Banned" : {
+
+    },
+    "base00 is the background, base01 cards and message bubbles, base02 reactions, base05 text and base0D the accent." : {
 
     },
     "Block" : {
@@ -164,6 +176,9 @@
     "Camera Unavailable" : {
 
     },
+    "Can’t be decrypted" : {
+
+    },
     "Can't Show This Image" : {
 
     },
@@ -174,9 +189,6 @@
 
     },
     "Cancel reply" : {
-
-    },
-    "Can’t be decrypted" : {
 
     },
     "Change" : {
@@ -207,6 +219,12 @@
 
     },
     "Clear" : {
+
+    },
+    "Collapsed, %lld unread" : {
+
+    },
+    "Colours" : {
 
     },
     "Compare fingerprints in person, or scan the code their app shows. Once a device is verified, new devices wait for your decision before messages are encrypted for them." : {
@@ -242,6 +260,9 @@
     "Copy Address" : {
 
     },
+    "Copy as base16 YAML" : {
+
+    },
     "Copy Link" : {
 
     },
@@ -251,13 +272,22 @@
     "Couldn't Download" : {
 
     },
+    "Couldn't Read Theme" : {
+
+    },
     "Couldn't Update Profile" : {
 
     },
     "Create" : {
 
     },
+    "Custom" : {
+
+    },
     "Dark" : {
+
+    },
+    "Dark Theme" : {
 
     },
     "Debug" : {
@@ -308,10 +338,10 @@
     "Domain" : {
 
     },
-    "Done" : {
+    "Don’t Trust" : {
 
     },
-    "Don’t Trust" : {
+    "Done" : {
 
     },
     "Double-tap to download" : {
@@ -332,6 +362,9 @@
     "Edit" : {
 
     },
+    "edited" : {
+
+    },
     "Editing: %@" : {
 
     },
@@ -341,10 +374,10 @@
     "Encrypted" : {
 
     },
-    "Encrypted (OMEMO)" : {
+    "Encrypted · %@" : {
 
     },
-    "Encrypted · %@" : {
+    "Encrypted (OMEMO)" : {
 
     },
     "Encryption" : {
@@ -354,6 +387,12 @@
 
     },
     "Everyone is removed and the room's history is gone." : {
+
+    },
+    "example.com" : {
+
+    },
+    "Expanded" : {
 
     },
     "Extended away" : {
@@ -386,6 +425,9 @@
     "Groups" : {
 
     },
+    "Hides this account's chats" : {
+
+    },
     "History could not be opened and is not being saved: %@" : {
 
     },
@@ -393,6 +435,12 @@
 
     },
     "Host override" : {
+
+    },
+    "Hrafn · Stream probe" : {
+
+    },
+    "Hrafn can't use the microphone. Allow it in Settings to record voice messages." : {
 
     },
     "Inactive" : {
@@ -407,10 +455,10 @@
     "Invite" : {
 
     },
-    "Invited by %@" : {
+    "Invite…" : {
 
     },
-    "Invite…" : {
+    "Invited by %@" : {
 
     },
     "It is removed for everyone in the room, who will see that a moderator removed it." : {
@@ -447,6 +495,9 @@
 
     },
     "Light" : {
+
+    },
+    "Light Theme" : {
 
     },
     "Load earlier messages" : {
@@ -512,6 +563,9 @@
     "Name (optional)" : {
 
     },
+    "name@example.com" : {
+
+    },
     "Never" : {
 
     },
@@ -522,6 +576,9 @@
 
     },
     "New password" : {
+
+    },
+    "New Theme" : {
 
     },
     "New, not trusted yet" : {
@@ -542,10 +599,10 @@
     "No Contact Selected" : {
 
     },
-    "No Conversations" : {
+    "No contacts yet" : {
 
     },
-    "No contacts yet" : {
+    "No Conversations" : {
 
     },
     "No encryption devices seen yet." : {
@@ -575,16 +632,19 @@
     "Not trusted" : {
 
     },
+    "Note to Self" : {
+
+    },
     "Notifications" : {
 
     },
     "Notify" : {
 
     },
-    "OK" : {
+    "Offline" : {
 
     },
-    "Offline" : {
+    "OK" : {
 
     },
     "On" : {
@@ -608,6 +668,9 @@
     "Only private groups can be encrypted: members only, with members’ addresses visible to each other. An owner can change this in Group Info." : {
 
     },
+    "Only you" : {
+
+    },
     "Open Chat" : {
 
     },
@@ -627,6 +690,9 @@
 
     },
     "Password (if the room has one)" : {
+
+    },
+    "Paste base16 YAML" : {
 
     },
     "Pause" : {
@@ -698,13 +764,13 @@
     "Remove Contact" : {
 
     },
+    "Remove from Account…" : {
+
+    },
     "Remove Message" : {
 
     },
     "Remove This Device?" : {
-
-    },
-    "Remove from Account…" : {
 
     },
     "Remove…" : {
@@ -750,10 +816,10 @@
     "Role" : {
 
     },
-    "Rounded" : {
+    "room@conference.example.com" : {
 
     },
-    "SRV lookup" : {
+    "Rounded" : {
 
     },
     "Save" : {
@@ -769,6 +835,9 @@
 
     },
     "Scan Verification Code" : {
+
+    },
+    "Selected" : {
 
     },
     "Send" : {
@@ -819,6 +888,9 @@
     "Shows their address" : {
 
     },
+    "Shows this account's chats" : {
+
+    },
     "Sign In" : {
 
     },
@@ -829,6 +901,9 @@
 
     },
     "Someone" : {
+
+    },
+    "SRV lookup" : {
 
     },
     "Start a chat with one of your contacts." : {
@@ -843,6 +918,9 @@
     "Status sharing" : {
 
     },
+    "stopped typing" : {
+
+    },
     "Storage" : {
 
     },
@@ -853,12 +931,6 @@
 
     },
     "System" : {
-
-    },
-    "Text (Dark)" : {
-
-    },
-    "Text (Light)" : {
 
     },
     "That code has no encryption fingerprints." : {
@@ -874,10 +946,10 @@
         }
       }
     },
-    "The accent colours buttons and your messages. Background and text apply to every screen, in light and dark mode." : {
+    "The account is not connected." : {
 
     },
-    "The account is not connected." : {
+    "The clipboard needs a base16 scheme: base00 to base0F, each a hex colour." : {
 
     },
     "The fingerprints don’t match for %lld device(s). Nothing was verified for those: the code may be old, or someone may be intercepting your messages." : {
@@ -887,6 +959,15 @@
 
     },
     "The server's certificate is not trusted by this device. Only continue if you know the server uses this certificate:\n\n%@" : {
+
+    },
+    "Theme" : {
+
+    },
+    "Themes" : {
+
+    },
+    "Themes are base16 colour schemes, one for light mode and one for dark. The accent colours buttons and your messages." : {
 
     },
     "They see your status; you don't see theirs" : {
@@ -904,22 +985,25 @@
     "Transferring" : {
 
     },
-    "Trust This Certificate" : {
-
-    },
-    "Trust Without Verifying" : {
-
-    },
     "Trust and Continue" : {
 
     },
     "Trust options" : {
 
     },
+    "Trust This Certificate" : {
+
+    },
+    "Trust Without Verifying" : {
+
+    },
     "Trusted, not verified" : {
 
     },
     "Try Again" : {
+
+    },
+    "typing…" : {
 
     },
     "Unblock" : {
@@ -932,6 +1016,9 @@
 
     },
     "Up to" : {
+
+    },
+    "Use Theme Accent" : {
 
     },
     "Verification" : {
@@ -973,16 +1060,10 @@
     "Welcome to Hrafn" : {
 
     },
-    "Hrafn can't use the microphone. Allow it in Settings to record voice messages." : {
-
-    },
-    "Hrafn · Stream probe" : {
+    "XML console" : {
 
     },
     "XML Console" : {
-
-    },
-    "XML console" : {
 
     },
     "You" : {
@@ -1006,37 +1087,10 @@
     "You: " : {
 
     },
-    "Your other devices will leave too." : {
-
-    },
-    "^[%lld new device](inflect: true) not trusted yet. Messages aren’t encrypted for it until you decide." : {
-
-    },
-    "edited" : {
-
-    },
-    "example.com" : {
-
-    },
-    "name@example.com" : {
-
-    },
-    "room@conference.example.com" : {
-
-    },
-    "stopped typing" : {
-
-    },
-    "typing…" : {
-
-    },
     "you@example.com" : {
 
     },
-    "« received" : {
-
-    },
-    "» sent" : {
+    "Your other devices will leave too." : {
 
     }
   },

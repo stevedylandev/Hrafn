@@ -52,12 +52,14 @@ struct ChatView: View {
     private var status: AccountStatus { app.manager.status(for: route.accountID) }
     private var title: String {
         if let (roomJID, nick) = occupant { return RoomPrivate.title(nick: nick, room: viaRoom, roomJID: roomJID) }
+        if isSelf { return String(localized: "Note to Self") }
         return room?.displayName ?? contact?.name ?? route.peer
     }
     /// XEP-0045 §7.5: the room and nickname when talking privately to an occupant.
     private var occupant: (room: String, nick: String)? { RoomPrivate.split(route.peer) }
     private var roomStatus: RoomStatus { status.room(route.peer) }
     private var isRoom: Bool { room != nil }
+    private var isSelf: Bool { app.isSelf(accountID: route.accountID, peer: route.peer) }
 
     var body: some View {
         dialogs(conversation)
@@ -210,8 +212,8 @@ struct ChatView: View {
         ToolbarItem(placement: .principal) {
             Button { showingContact = true } label: {
                 VStack(spacing: 0) {
-                    Text(title).font(.headline).foregroundStyle(.primary)
-                    Text(subtitle).font(.caption2).foregroundStyle(.secondary)
+                    Text(title).font(.headline).foregroundStyle(.primary).lineLimit(1)
+                    Text(subtitle).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
                 }
             }
             .accessibilityIdentifier("chat.title")
@@ -310,7 +312,13 @@ struct ChatView: View {
     private var subtitle: String {
         if room != nil {
             guard roomStatus.isJoined else { return roomStatus.summary }
-            let summary = room?.subject ?? roomStatus.summary
+            // One line: a long or multi-line subject is truncated.
+            let subject = room?.subject?.split(whereSeparator: \.isNewline).joined(separator: " ")
+            let summary = subject ?? roomStatus.summary
+            return encryption == .omemo ? String(localized: "Encrypted · \(summary)") : summary
+        }
+        if isSelf {
+            let summary = String(localized: "Only you")
             return encryption == .omemo ? String(localized: "Encrypted · \(summary)") : summary
         }
         switch status.typing[route.peer] {
@@ -417,7 +425,7 @@ struct ChatView: View {
                 inputRow
             }
         }
-        .background(.bar)
+        .themedBar()
     }
 
     private var inputRow: some View {
@@ -442,7 +450,7 @@ struct ChatView: View {
                 .lineLimit(1...6)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .background(RoundedRectangle(cornerRadius: 20).fill(Color(.secondarySystemBackground)))
+                .background(RoundedRectangle(cornerRadius: 20).fill(.surface))
                 .onChange(of: text) { old, new in typingChanged(from: old, to: new) }
                 .accessibilityIdentifier("chat.composer")
             if editing == nil, text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -765,6 +773,7 @@ struct ChatView: View {
 }
 
 private struct MessageBubble: View {
+    @Environment(\.onAccent) private var onAccent
     let message: StoredMessage
     let accountID: String
     /// Group chat: the sender's nick above the first of their messages in a run.
@@ -884,7 +893,7 @@ private struct MessageBubble: View {
                 Text(message.retractionNotice).italic().foregroundStyle(.secondary)
             } else if let attachment = message.attachment {
                 AttachmentView(message: message, attachment: attachment, accountID: accountID)
-                    .foregroundStyle(message.isOutgoing ? .white : .primary)
+                    .foregroundStyle(message.isOutgoing ? onAccent : .primary)
             } else {
                 VStack(alignment: .leading, spacing: 4) {
                     if let quote {
@@ -896,7 +905,7 @@ private struct MessageBubble: View {
                         Text(message.body).italic().foregroundStyle(.secondary)
                     } else {
                         StyledText(text: message.body, isOutgoing: message.isOutgoing, unstyled: message.isUnstyled)
-                            .foregroundStyle(message.isOutgoing ? .white : .primary)
+                            .foregroundStyle(message.isOutgoing ? onAccent : .primary)
                     }
                 }
             }
@@ -907,7 +916,7 @@ private struct MessageBubble: View {
         .background(
             RoundedRectangle(cornerRadius: 18)
                 .fill(message.isOutgoing && !message.isRetracted ? AnyShapeStyle(.tint)
-                      : AnyShapeStyle(Color(.secondarySystemBackground)))
+                      : AnyShapeStyle(.surface))
         )
         .overlay {
             if message.mentionsMe, !message.isRetracted {
