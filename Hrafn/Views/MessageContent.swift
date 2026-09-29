@@ -6,18 +6,47 @@ import XMPPIM
 
 /// A message body with XEP-0393 styling: bold, italic, strikethrough and
 /// code, preformatted blocks and quotes. The directives stay visible, dimmed,
-/// as the XEP intends, so nothing the sender typed disappears.
+/// as the XEP intends, so nothing the sender typed disappears. Web addresses
+/// are links, underlined so they stand out on either bubble.
 struct StyledText: View {
     @Environment(\.onAccent) private var onAccent
     let text: String
     let isOutgoing: Bool
     var unstyled = false
+    /// Off where the text sits inside a button of its own (a reply's quote).
+    var linked = true
 
     var body: some View {
-        if unstyled || !text.contains(where: { "*_~`>".contains($0) }) {
-            Text(text)
-        } else {
-            Text(Self.attributed(text, isOutgoing: isOutgoing, onAccent: onAccent))
+        // Links take the tint, which is an outgoing bubble's background.
+        content.tint(isOutgoing ? onAccent : nil)
+    }
+
+    private var content: Text {
+        let styled = !unstyled && text.contains(where: { "*_~`>".contains($0) })
+        let links = linked ? Self.links(in: text) : []
+        if !styled, links.isEmpty { return Text(text) }
+        var result = styled ? Self.attributed(text, isOutgoing: isOutgoing, onAccent: onAccent)
+                            : AttributedString(text)
+        Self.addLinks(links, to: &result)
+        return Text(result)
+    }
+
+    private static let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
+
+    /// The web (and mail) addresses in `text`.
+    static func links(in text: String) -> [(range: NSRange, url: URL)] {
+        guard let detector, text.contains(where: { $0 == "." || $0 == ":" }) else { return [] }
+        return detector.matches(in: text, range: NSRange(text.startIndex..., in: text)).compactMap { match in
+            match.url.map { (match.range, $0) }
+        }
+    }
+
+    /// Links the detected ranges; styling keeps the text character for character.
+    static func addLinks(_ links: [(range: NSRange, url: URL)], to text: inout AttributedString) {
+        for link in links {
+            guard let range = Range(link.range, in: text) else { continue }
+            text[range].link = link.url
+            text[range].underlineStyle = .single
         }
     }
 
@@ -65,7 +94,7 @@ struct ReplyQuote: View {
                     .frame(width: 3)
                 VStack(alignment: .leading, spacing: 1) {
                     Text(author).font(.caption.bold())
-                    StyledText(text: text, isOutgoing: isOutgoing).font(.caption).lineLimit(2)
+                    StyledText(text: text, isOutgoing: isOutgoing, linked: false).font(.caption).lineLimit(2)
                 }
                 .foregroundStyle(isOutgoing ? AnyShapeStyle(onAccent.opacity(0.85)) : AnyShapeStyle(.secondary))
                 .multilineTextAlignment(.leading)

@@ -97,6 +97,9 @@ struct ChatView: View {
             }
     }
 
+    /// The scroll position of the end of the conversation.
+    private static let bottom = "chat.bottom"
+
     private var conversation: some View {
         ScrollViewReader { proxy in
             ScrollView {
@@ -118,22 +121,28 @@ struct ChatView: View {
                 }
                 .padding(.horizontal, 12)
                 .padding(.bottom, 8)
+                // The very end, past the last row's reactions and padding.
+                Color.clear.frame(height: 1).id(Self.bottom)
             }
             .defaultScrollAnchor(.bottom)
+            .stayingAtBottom()
             .themed()
             .scrollDismissesKeyboard(.interactively)
-            .onChange(of: messages.last?.id) { old, id in
+            .onChange(of: messages.last?.id) { old, _ in
                 guard pendingFocus == nil else { return }
                 if old == nil {
-                    // Opening the chat: jump to the latest, again once the
-                    // lazy rows have measured themselves.
-                    proxy.scrollTo(id, anchor: .bottom)
+                    // Opening the chat: jump to the end, and again as the
+                    // lazy rows, media and composer settle their sizes.
+                    proxy.scrollTo(Self.bottom, anchor: .bottom)
                     Task {
-                        try? await Task.sleep(for: .milliseconds(100))
-                        proxy.scrollTo(id, anchor: .bottom)
+                        for delay in [50, 150, 350] {
+                            try? await Task.sleep(for: .milliseconds(delay))
+                            guard pendingFocus == nil else { return }
+                            proxy.scrollTo(Self.bottom, anchor: .bottom)
+                        }
                     }
                 } else {
-                    withAnimation { proxy.scrollTo(id, anchor: .bottom) }
+                    withAnimation { proxy.scrollTo(Self.bottom, anchor: .bottom) }
                 }
             }
             // Whichever comes second: the rows, or the request to show one.
@@ -1050,6 +1059,20 @@ private struct MessageBubble: View {
         case .displayed: Image(systemName: "checkmark.circle.fill").accessibilityLabel("Read")
         case .failed: Image(systemName: "exclamationmark.circle.fill").foregroundStyle(.red).accessibilityLabel("Failed")
         case .received, .read: EmptyView()
+        }
+    }
+}
+
+private extension View {
+    /// Keeps a scroll view at its end while its content or the room around
+    /// it changes size: rows measuring themselves, pictures loading, the
+    /// composer growing. Only from iOS 18; before, the jumps on opening do.
+    @ViewBuilder
+    func stayingAtBottom() -> some View {
+        if #available(iOS 18, *) {
+            defaultScrollAnchor(.bottom, for: .sizeChanges)
+        } else {
+            self
         }
     }
 }

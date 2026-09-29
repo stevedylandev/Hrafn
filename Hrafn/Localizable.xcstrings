@@ -435,6 +435,9 @@
     "Groups" : {
 
     },
+    "Hide" : {
+
+    },
     "Hides this account's chats" : {
 
     },
@@ -884,6 +887,9 @@
 
     },
     "Share Link" : {
+
+    },
+    "Show" : {
 
     },
     "Show My QR Code" : {

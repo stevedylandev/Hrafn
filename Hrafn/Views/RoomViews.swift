@@ -263,6 +263,9 @@ struct RoomDetailView: View {
     @State private var errorMessage: String?
     /// A member whose OMEMO devices are shown (private groups).
     @State private var devicesOf: String?
+    /// The participant list starts folded away: a big room's would bury the
+    /// actions below it.
+    @State private var showingParticipants = false
 
     private var session: AccountSession? { app.manager.session(for: accountID) }
     private var status: RoomStatus { app.manager.status(for: accountID).room(jid) }
@@ -314,10 +317,23 @@ struct RoomDetailView: View {
                 }
 
                 if status.isJoined {
-                    Section("Participants (\(status.occupants.count))") {
-                        ForEach(status.occupants) { occupant in
-                            OccupantRow(occupant: occupant, image: occupantAvatar(occupant))
-                                .contextMenu { moderation(for: occupant) }
+                    Section {
+                        if showingParticipants {
+                            ForEach(status.occupants) { occupant in
+                                OccupantRow(occupant: occupant, image: occupantAvatar(occupant))
+                                    .contextMenu { moderation(for: occupant) }
+                            }
+                        }
+                    } header: {
+                        HStack {
+                            Text("Participants (\(status.occupants.count))")
+                            Spacer()
+                            Button(showingParticipants ? "Hide" : "Show") {
+                                withAnimation { showingParticipants.toggle() }
+                            }
+                            .font(.footnote)
+                            .textCase(nil)
+                            .accessibilityIdentifier("room.participants.toggle")
                         }
                     }
                 }
