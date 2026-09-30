@@ -107,22 +107,25 @@ private struct Themed: ViewModifier {
 }
 
 /// A plain list row on the theme's background, so plain lists don't keep
-/// the system's cell colour behind their rows.
+/// the system's cell colour behind their rows. Without a theme, the
+/// system's colour by name: a `nil` background leaves a cell with the
+/// colour it had, so it would keep the previous theme's.
 private struct ThemedRow: ViewModifier {
     @Environment(\.palette) private var palette
 
     func body(content: Content) -> some View {
-        content.listRowBackground(palette?.background)
+        content.listRowBackground(palette?.background ?? Color(.systemBackground))
     }
 }
 
 /// Grouped form cells on the theme's surface colour. On a `Group` of
-/// sections, it reaches every row.
+/// sections, it reaches every row. The system's colour by name when there
+/// is no theme, as for `ThemedRow`.
 private struct ThemedCells: ViewModifier {
     @Environment(\.palette) private var palette
 
     func body(content: Content) -> some View {
-        content.listRowBackground(palette?.surface)
+        content.listRowBackground(palette?.surface ?? Color(.secondarySystemGroupedBackground))
     }
 }
 

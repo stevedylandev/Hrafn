@@ -40,6 +40,10 @@ struct ChatView: View {
     /// A message to bring into view (from search), until it has been.
     @State private var pendingFocus: Int64?
     @State private var highlighted: Int64?
+    /// Where the conversation is scrolled: at its end, new messages bring
+    /// it along; above, they wait behind the "New Messages" button.
+    @State private var place = ScrollPlace()
+    @State private var newBelow = false
     /// Group chat: the nick whose address is being shown.
     @State private var inspectingSender: String?
     @State private var viewingContact: String?
@@ -52,6 +56,7 @@ struct ChatView: View {
     /// Height of the one-line message field and the attach button beside it.
     @ScaledMetric(relativeTo: .body) private var fieldHeight: CGFloat = 38
     @Environment(\.palette) private var palette
+    @Environment(\.onAccent) private var onAccent
 
     private var session: AccountSession? { app.manager.session(for: route.accountID) }
     private var status: AccountStatus { app.manager.status(for: route.accountID) }
@@ -124,10 +129,34 @@ struct ChatView: View {
                 // The very end, past the last row's reactions and padding.
                 Color.clear.frame(height: 1).id(Self.bottom)
             }
-            .defaultScrollAnchor(.bottom)
-            .stayingAtBottom()
+            .stayingAtBottom(following: place.atBottom || place.nearTop)
+            .tracking($place)
             .themed()
             .scrollDismissesKeyboard(.interactively)
+            .overlay(alignment: .bottom) {
+                if newBelow {
+                    Button {
+                        newBelow = false
+                        withAnimation { proxy.scrollTo(Self.bottom, anchor: .bottom) }
+                    } label: {
+                        Label("New Messages", systemImage: "arrow.down")
+                            .font(.subheadline.weight(.semibold))
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .foregroundStyle(onAccent)
+                            .background(.tint, in: Capsule())
+                            .shadow(color: .black.opacity(0.15), radius: 6, y: 2)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.bottom, 8)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .accessibilityIdentifier("chat.newMessages")
+                }
+            }
+            .animation(.default, value: newBelow)
+            .onChange(of: place.atBottom) { _, atBottom in
+                if atBottom { newBelow = false }
+            }
             .onChange(of: messages.last?.id) { old, _ in
                 guard pendingFocus == nil else { return }
                 if old == nil {
@@ -141,8 +170,13 @@ struct ChatView: View {
                             proxy.scrollTo(Self.bottom, anchor: .bottom)
                         }
                     }
-                } else {
+                } else if place.atBottom || messages.last?.isOutgoing == true {
+                    // Following along, or we just sent it.
+                    newBelow = false
                     withAnimation { proxy.scrollTo(Self.bottom, anchor: .bottom) }
+                } else {
+                    // Reading further up: leave the view where it is.
+                    newBelow = true
                 }
             }
             // Whichever comes second: the rows, or the request to show one.
@@ -1063,14 +1097,46 @@ private struct MessageBubble: View {
     }
 }
 
+/// Where a chat's scroll view is, as far as following new messages goes.
+private struct ScrollPlace: Equatable {
+    /// At the end (or close enough); until iOS 18 tells us, assumed.
+    var atBottom = true
+    /// Within a screen of the start, where earlier messages load.
+    var nearTop = false
+}
+
 private extension View {
-    /// Keeps a scroll view at its end while its content or the room around
-    /// it changes size: rows measuring themselves, pictures loading, the
-    /// composer growing. Only from iOS 18; before, the jumps on opening do.
+    /// Opens at the end, and keeps a scroll view there while its content or
+    /// the room around it changes size: rows measuring themselves, pictures
+    /// loading, the composer growing, earlier messages loading above. When
+    /// the reader has scrolled up (`following` false), growth below leaves
+    /// what they are reading in place instead. Only from iOS 18; before,
+    /// the jumps on opening do.
     @ViewBuilder
-    func stayingAtBottom() -> some View {
+    func stayingAtBottom(following: Bool) -> some View {
         if #available(iOS 18, *) {
-            defaultScrollAnchor(.bottom, for: .sizeChanges)
+            defaultScrollAnchor(.bottom, for: .initialOffset)
+                .defaultScrollAnchor(.bottom, for: .alignment)
+                .defaultScrollAnchor(following ? .bottom : .top, for: .sizeChanges)
+        } else {
+            defaultScrollAnchor(.bottom)
+        }
+    }
+
+    /// Follows where the scroll view is. Only from iOS 18; before, it is
+    /// always taken to be at the end, so new messages always scroll.
+    @ViewBuilder
+    func tracking(_ place: Binding<ScrollPlace>) -> some View {
+        if #available(iOS 18, *) {
+            onScrollGeometryChange(for: ScrollPlace.self) { geometry in
+                let visibleEnd = geometry.contentOffset.y + geometry.containerSize.height
+                    - geometry.contentInsets.bottom
+                return ScrollPlace(atBottom: visibleEnd >= geometry.contentSize.height - 60,
+                                   nearTop: geometry.contentOffset.y + geometry.contentInsets.top
+                                       < geometry.containerSize.height)
+            } action: { _, new in
+                place.wrappedValue = new
+            }
         } else {
             self
         }

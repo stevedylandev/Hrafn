@@ -100,7 +100,7 @@ struct ThemePickerView: View {
         }
         .buttonStyle(.plain)
         // Each theme on its own background, so it can be seen before choosing.
-        .listRowBackground(scheme.map { $0[0] })
+        .listRowBackground(scheme.map { $0[0] } ?? Color(.secondarySystemGroupedBackground))
     }
 
     private func importFromClipboard() {
