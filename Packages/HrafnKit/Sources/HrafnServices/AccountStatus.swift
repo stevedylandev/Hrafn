@@ -126,6 +126,9 @@ public final class AccountStatus {
     public internal(set) var rooms: [String: RoomStatus] = [:]
     /// File uploads and downloads in progress: message id → 0...1.
     public internal(set) var transfers: [Int64: Double] = [:]
+    /// A session has finished its first history catch-up since launch, so
+    /// the stored conversations are as complete as they will get.
+    public internal(set) var hasCaughtUp = false
 
     public init() {}
 

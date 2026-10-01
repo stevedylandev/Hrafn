@@ -8,8 +8,6 @@ struct ConversationListView: View {
     @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var summaries: [ConversationSummary] = []
     @State private var invitations: [RoomInvitation] = []
-    @State private var summariesLoaded = false
-    @State private var invitationsLoaded = false
     @State private var showingNewChat = false
     @State private var query = ""
     @State private var found: [StoredMessage] = []
@@ -45,10 +43,8 @@ struct ConversationListView: View {
             NewChatView()
         }
         .sheet(item: $app.pendingJoin) { link in JoinRoomView(address: link.room) }
-        .observing({ app.database.conversations() }, id: app.manager.accounts.count, into: $summaries,
-                   isLoaded: $summariesLoaded)
-        .observing({ app.database.invitations() }, id: app.manager.accounts.count, into: $invitations,
-                   isLoaded: $invitationsLoaded)
+        .observing({ app.database.conversations() }, id: app.manager.accounts.count, into: $summaries)
+        .observing({ app.database.invitations() }, id: app.manager.accounts.count, into: $invitations)
         .task(id: query) {
             // Typing: wait for a pause before searching.
             try? await Task.sleep(for: .milliseconds(150))
@@ -63,7 +59,19 @@ struct ConversationListView: View {
         Binding(get: { app.chatPath.first }, set: { app.chatPath = $0.map { [$0] } ?? [] })
     }
 
-    private var isLoadingThreads: Bool { !summariesLoaded || !invitationsLoaded }
+    /// Nothing stored yet while an account is still connecting or fetching
+    /// its history: placeholders rather than "No Conversations".
+    private var isLoadingThreads: Bool {
+        guard summaries.isEmpty && invitations.isEmpty else { return false }
+        return app.manager.accounts.contains { account in
+            guard account.enabled, let status = app.manager.statuses[account.id],
+                  !status.hasCaughtUp else { return false }
+            switch status.connection {
+            case .connecting, .reconnecting, .online: return true
+            case .offline, .waitingForNetwork, .failed: return false
+            }
+        }
+    }
 
     private var list: some View {
         List(selection: sizeClass == .regular ? selection : nil) {
@@ -386,8 +394,8 @@ private struct ConversationRow: View {
     }
 }
 
-/// A placeholder while the local conversation and invitation observations
-/// produce their first values. Keeps a cold dashboard from looking empty.
+/// A placeholder while an account connects and fetches its history, before
+/// any conversation is stored. Keeps a first launch from looking empty.
 private struct ConversationLoadingRow: View {
     var body: some View {
         HStack(spacing: 12) {

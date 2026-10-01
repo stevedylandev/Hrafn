@@ -358,6 +358,7 @@ public actor AccountSession {
             uploadService = nil
         }
         caughtUp = true
+        await MainActor.run { status.hasCaughtUp = true }
         await flushOutbox()
         await roomsSessionEstablished(resumed: resumed)
         if !resumed {
