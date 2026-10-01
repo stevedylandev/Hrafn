@@ -8,6 +8,8 @@ struct ConversationListView: View {
     @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var summaries: [ConversationSummary] = []
     @State private var invitations: [RoomInvitation] = []
+    @State private var summariesLoaded = false
+    @State private var invitationsLoaded = false
     @State private var showingNewChat = false
     @State private var query = ""
     @State private var found: [StoredMessage] = []
@@ -43,8 +45,10 @@ struct ConversationListView: View {
             NewChatView()
         }
         .sheet(item: $app.pendingJoin) { link in JoinRoomView(address: link.room) }
-        .observing({ app.database.conversations() }, id: app.manager.accounts.count, into: $summaries)
-        .observing({ app.database.invitations() }, id: app.manager.accounts.count, into: $invitations)
+        .observing({ app.database.conversations() }, id: app.manager.accounts.count, into: $summaries,
+                   isLoaded: $summariesLoaded)
+        .observing({ app.database.invitations() }, id: app.manager.accounts.count, into: $invitations,
+                   isLoaded: $invitationsLoaded)
         .task(id: query) {
             // Typing: wait for a pause before searching.
             try? await Task.sleep(for: .milliseconds(150))
@@ -59,6 +63,8 @@ struct ConversationListView: View {
         Binding(get: { app.chatPath.first }, set: { app.chatPath = $0.map { [$0] } ?? [] })
     }
 
+    private var isLoadingThreads: Bool { !summariesLoaded || !invitationsLoaded }
+
     private var list: some View {
         List(selection: sizeClass == .regular ? selection : nil) {
             if query.isEmpty {
@@ -71,7 +77,7 @@ struct ConversationListView: View {
         .listStyle(.plain)
         .searchable(text: $query, prompt: "Chats and messages")
         .overlay {
-            if query.isEmpty && summaries.isEmpty && invitations.isEmpty {
+            if query.isEmpty && !isLoadingThreads && summaries.isEmpty && invitations.isEmpty {
                 ContentUnavailableView {
                     Label("No Conversations", systemImage: "bubble.left.and.bubble.right")
                 } description: {
@@ -104,13 +110,18 @@ struct ConversationListView: View {
 
     @ViewBuilder
     private var conversations: some View {
-        if !invitations.isEmpty {
+        if isLoadingThreads {
+            Section {
+                ForEach(0..<4, id: \.self) { _ in ConversationLoadingRow() }
+                    .themedRow()
+            }
+        } else if !invitations.isEmpty {
             Section("Invitations") {
                 ForEach(invitations) { InvitationRow(invitation: $0) }
                     .themedRow()
             }
         }
-        if app.manager.accounts.count > 1 {
+        if !isLoadingThreads && app.manager.accounts.count > 1 {
             // Several accounts: a section each, in the order they were added.
             ForEach(app.manager.accounts) { account in
                 let chats = summaries.filter { $0.conversation.accountID == account.id }
@@ -131,7 +142,7 @@ struct ConversationListView: View {
                     }
                 }
             }
-        } else {
+        } else if !isLoadingThreads {
             ForEach(summaries) { conversationLink($0) }
                 .themedRow()
         }
@@ -372,6 +383,31 @@ private struct ConversationRow: View {
         } else {
             Text(verbatim: " ")
         }
+    }
+}
+
+/// A placeholder while the local conversation and invitation observations
+/// produce their first values. Keeps a cold dashboard from looking empty.
+private struct ConversationLoadingRow: View {
+    var body: some View {
+        HStack(spacing: 12) {
+            Circle()
+                .fill(.quaternary)
+                .frame(width: 44, height: 44)
+            VStack(alignment: .leading, spacing: 8) {
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(.quaternary)
+                    .frame(width: 132, height: 12)
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(.quaternary)
+                    .frame(maxWidth: 210)
+                    .frame(height: 10)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.vertical, 4)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Loading conversations")
     }
 }
 

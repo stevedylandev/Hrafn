@@ -44,8 +44,7 @@ struct ChatView: View {
     /// it along; above, they wait behind the "New Messages" button.
     @State private var place = ScrollPlace()
     @State private var newBelow = false
-    /// Group chat: the nick whose address is being shown.
-    @State private var inspectingSender: String?
+    @FocusState private var composerFocused: Bool
     @State private var viewingContact: String?
     /// Avatars and nicknames by JID (occupants without one by `room/nick`).
     @State private var profiles: [String: Profile] = [:]
@@ -75,25 +74,12 @@ struct ChatView: View {
         dialogs(conversation)
     }
 
-    /// Group chat senders' addresses, and why a public room can't be
-    /// encrypted. Apart from `conversation` to keep the type checker quick.
+    /// Navigation destinations and why a public room can't be encrypted.
+    /// Apart from `conversation` to keep the type checker quick.
     private func dialogs(_ content: some View) -> some View {
         content
             .navigationDestination(item: $viewingContact) { jid in
                 ContactDetailView(accountID: route.accountID, jid: jid)
-            }
-            .confirmationDialog(inspectingSender ?? "", isPresented: Binding(
-                get: { inspectingSender != nil }, set: { if !$0 { inspectingSender = nil } }),
-                                titleVisibility: .visible, presenting: inspectingSender) { nick in
-                if let jid = address(of: nick) {
-                    Button("View Contact") { viewingContact = jid }
-                    Button("Copy Address") { UIPasteboard.general.string = jid }
-                }
-                if nick != roomStatus.nick {
-                    Button("Message Privately") { app.openChat(accountID: route.accountID, peer: "\(route.peer)/\(nick)") }
-                }
-            } message: { nick in
-                Text(address(of: nick) ?? String(localized: "This room keeps members’ addresses hidden."))
             }
             .alert("Not Encrypted", isPresented: $explainingEncryption) {
                 Button("OK", role: .cancel) {}
@@ -129,12 +115,12 @@ struct ChatView: View {
                 // The very end, past the last row's reactions and padding.
                 Color.clear.frame(height: 1).id(Self.bottom)
             }
-            .stayingAtBottom(following: place.atBottom || place.nearTop)
+            .stayingAtBottom(following: place.atBottom)
             .tracking($place)
             .themed()
             .scrollDismissesKeyboard(.interactively)
             .overlay(alignment: .bottom) {
-                if newBelow {
+                if newBelow && !place.atBottom {
                     Button {
                         newBelow = false
                         withAnimation { proxy.scrollTo(Self.bottom, anchor: .bottom) }
@@ -156,6 +142,18 @@ struct ChatView: View {
             .animation(.default, value: newBelow)
             .onChange(of: place.atBottom) { _, atBottom in
                 if atBottom { newBelow = false }
+            }
+            .onChange(of: composerFocused) { _, focused in
+                guard focused else { return }
+                newBelow = false
+                withAnimation { proxy.scrollTo(Self.bottom, anchor: .bottom) }
+                // The keyboard changes the scroll view's height after focus.
+                // Scroll again once its animation has made room for the rows.
+                Task {
+                    try? await Task.sleep(for: .milliseconds(350))
+                    guard composerFocused else { return }
+                    withAnimation { proxy.scrollTo(Self.bottom, anchor: .bottom) }
+                }
             }
             .onChange(of: messages.last?.id) { old, _ in
                 guard pendingFocus == nil else { return }
@@ -320,13 +318,12 @@ struct ChatView: View {
                       showsSender: room != nil && !message.isOutgoing
                         && (index == 0 || messages[index - 1].senderNick != message.senderNick
                             || messages[index - 1].isOutgoing),
-                      sender: sender(of: message),
-                      showsAvatar: endsRun(at: index),
-                      endsRun: endsRun(at: index),
-                      showSender: room == nil ? { showingContact = true }
-                        : message.senderNick.map { nick in { inspectingSender = nick } },
-                      inspectSender: room == nil ? nil : { inspectingSender = $0 },
-                      quote: quote(for: message, original: original),
+                       sender: sender(of: message),
+                       showsAvatar: endsRun(at: index),
+                       endsRun: endsRun(at: index),
+                       showSender: room == nil ? { showingContact = true } : nil,
+                       senderActions: room == nil ? nil : { actions(forSender: $0) },
+                       quote: quote(for: message, original: original),
                       showOriginal: original.map { original in
                           { withAnimation { proxy.scrollTo(original.id, anchor: .center) } }
                       },
@@ -399,6 +396,16 @@ struct ChatView: View {
         if let jid = roomStatus.occupants.first(where: { $0.nick == nick })?.jid { return jid }
         return messages.last { $0.senderNick == nick && $0.senderJID != nil }?.senderJID
             .map { $0.split(separator: "/").first.map(String.init) ?? $0 }
+    }
+
+    private func actions(forSender nick: String) -> SenderActions {
+        let jid = address(of: nick)
+        return SenderActions(address: jid,
+                             viewContact: jid.map { jid in { viewingContact = jid } },
+                             copyAddress: jid.map { jid in { UIPasteboard.general.string = jid } },
+                             messagePrivately: nick == roomStatus.nick ? nil : {
+                                 app.openChat(accountID: route.accountID, peer: "\(route.peer)/\(nick)")
+                             })
     }
 
     private var subtitle: String {
@@ -554,6 +561,7 @@ struct ChatView: View {
             HStack(alignment: .bottom, spacing: 4) {
                 TextField("Message", text: $text, axis: .vertical)
                     .lineLimit(1...6)
+                    .focused($composerFocused)
                     .padding(.vertical, 8)
                     .frame(minHeight: fieldHeight)
                     .onChange(of: text) { old, new in typingChanged(from: old, to: new) }
@@ -889,6 +897,57 @@ struct ChatView: View {
     }
 }
 
+private struct SenderActions {
+    var address: String?
+    var viewContact: (() -> Void)?
+    var copyAddress: (() -> Void)?
+    var messagePrivately: (() -> Void)?
+}
+
+private struct SenderProfileButton<Label: View>: View {
+    let nick: String
+    var senderActions: ((String) -> SenderActions)?
+    var fallback: (() -> Void)?
+    private let label: () -> Label
+
+    @State private var showingActions = false
+
+    init(nick: String, senderActions: ((String) -> SenderActions)? = nil,
+         fallback: (() -> Void)? = nil, @ViewBuilder label: @escaping () -> Label) {
+        self.nick = nick
+        self.senderActions = senderActions
+        self.fallback = fallback
+        self.label = label
+    }
+
+    var body: some View {
+        Button {
+            if senderActions != nil {
+                showingActions = true
+            } else {
+                fallback?()
+            }
+        } label: {
+            label()
+        }
+        .disabled(senderActions == nil && fallback == nil)
+        .confirmationDialog(nick, isPresented: $showingActions, titleVisibility: .visible) {
+            let actions = senderActions?(nick)
+            if let viewContact = actions?.viewContact {
+                Button("View Contact", action: viewContact)
+            }
+            if let copyAddress = actions?.copyAddress {
+                Button("Copy Address", action: copyAddress)
+            }
+            if let messagePrivately = actions?.messagePrivately {
+                Button("Message Privately", action: messagePrivately)
+            }
+        } message: {
+            Text(senderActions?(nick).address ?? String(localized: "This room keeps members’ addresses hidden."))
+        }
+    }
+}
+
 private struct MessageBubble: View {
     @Environment(\.onAccent) private var onAccent
     let message: StoredMessage
@@ -903,8 +962,8 @@ private struct MessageBubble: View {
     var endsRun = true
     /// Tapping the avatar: the contact, or in a room the sender's address.
     var showSender: (() -> Void)?
-    /// Group chat: shows who the sender is, from their nick.
-    var inspectSender: ((String) -> Void)?
+    /// Group chat: actions shown from the sender's avatar or nick.
+    var senderActions: ((String) -> SenderActions)?
     /// XEP-0461: the message this one answers.
     var quote: (author: String, text: String)?
     var showOriginal: (() -> Void)?
@@ -926,11 +985,10 @@ private struct MessageBubble: View {
             if message.isOutgoing { Spacer(minLength: 48) }
             if let sender {
                 if showsAvatar {
-                    Button { showSender?() } label: {
+                    SenderProfileButton(nick: sender.name, senderActions: senderActions, fallback: showSender) {
                         Avatar(name: sender.name, size: Self.avatarSize, image: sender.image, colorKey: sender.colorKey)
                     }
                     .buttonStyle(.plain)
-                    .disabled(showSender == nil)
                     .accessibilityHidden(true)
                 } else {
                     Color.clear.frame(width: Self.avatarSize, height: 1)
@@ -938,13 +996,12 @@ private struct MessageBubble: View {
             }
             VStack(alignment: message.isOutgoing ? .trailing : .leading, spacing: 2) {
                 if showsSender, let nick = message.senderNick {
-                    Button { inspectSender?(nick) } label: {
+                    SenderProfileButton(nick: nick, senderActions: senderActions) {
                         Text(nick)
                             .font(.caption.bold())
                             .foregroundStyle(Self.color(for: nick))
                     }
                     .buttonStyle(.plain)
-                    .disabled(inspectSender == nil)
                     .accessibilityHint("Shows their address")
                 }
                 if let attachment = message.attachment, !message.isRetracted,
@@ -1101,8 +1158,6 @@ private struct MessageBubble: View {
 private struct ScrollPlace: Equatable {
     /// At the end (or close enough); until iOS 18 tells us, assumed.
     var atBottom = true
-    /// Within a screen of the start, where earlier messages load.
-    var nearTop = false
 }
 
 private extension View {
@@ -1129,11 +1184,7 @@ private extension View {
     func tracking(_ place: Binding<ScrollPlace>) -> some View {
         if #available(iOS 18, *) {
             onScrollGeometryChange(for: ScrollPlace.self) { geometry in
-                let visibleEnd = geometry.contentOffset.y + geometry.containerSize.height
-                    - geometry.contentInsets.bottom
-                return ScrollPlace(atBottom: visibleEnd >= geometry.contentSize.height - 60,
-                                   nearTop: geometry.contentOffset.y + geometry.contentInsets.top
-                                       < geometry.containerSize.height)
+                ScrollPlace(atBottom: geometry.visibleRect.maxY >= geometry.contentSize.height - 60)
             } action: { _, new in
                 place.wrappedValue = new
             }
